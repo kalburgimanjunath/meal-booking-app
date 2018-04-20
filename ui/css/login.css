@@ -1,0 +1,22 @@
+@import url("common.css");
+
+.title {
+  text-align: center;
+  padding: 50px 0 20px;
+}
+
+.title h3 {
+  color: #00a1e0;
+  font-size: 30px;
+}
+
+.login-panel {
+  width: 30%;
+  height: 400px;
+  margin: 0 auto;
+  border: 1px solid #ced4da;
+}
+
+.input-container {
+  padding: 20px 20px 0px 20px;
+}

@@ -1,0 +1,36 @@
+body {
+  font-family: sans-serif;
+}
+
+a {
+  color: #00a1e0;
+  text-decoration: none;
+}
+
+.form-input {
+  display: block;
+  border: 1px solid #ced4da;
+  width: 100%;
+  border-radius: 0.25rem;
+  margin-bottom: 20px;
+  height: 35px;
+  font-size: 15px;
+}
+
+.btn {
+  height: 35px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+.btn-blue {
+  background-color: #00a1e0;
+  border-color: #00a1e0;
+  color: #ffffff;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
