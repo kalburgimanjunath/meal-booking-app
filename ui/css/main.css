@@ -1,1 +1,212 @@
 @import url("common.css");
+
+body {
+  display: block;
+  margin: 0px;
+}
+
+.header {
+  background-color: #333;
+}
+
+.navbar {
+  overflow: hidden;
+  margin: 0px 100px 0px 100px;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.navbar a:hover {
+  background-color: #e8e9eb;
+  color: black;
+}
+
+.active {
+  background-color: #00a1e0;
+  color: white;
+}
+
+.navbar .icon {
+  display: none;
+}
+
+.app-banner {
+  text-align: center;
+  background: #f6f6f8;
+  margin-top: -15px;
+}
+
+.app-banner h1 {
+  font: 40px;
+  color: #ffffff;
+  font-weight: bolder;
+}
+
+.app-banner p {
+  color: #000;
+}
+
+.app-banner img {
+  width: 400px;
+}
+
+.specific-day {
+  margin: 0px 20px 0 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.specific-day input {
+  width: 50%;
+}
+
+.menu-items {
+  margin: 0px 20px 0 20px;
+}
+
+.meal-option {
+  display: inline-block;
+  border: 1px solid #eee;
+  margin: 10px;
+  width: 300px;
+  height: 300px;
+}
+
+.img-container {
+  display: block;
+  text-align: center;
+}
+
+.meal-option img {
+  padding: 5px;
+  align-self: center;
+  width: 250px;
+}
+
+.meal-info {
+  background: #fff;
+}
+
+.meal-info h4,
+p,
+input {
+  margin-left: 25px;
+}
+
+.checkbox {
+  border: 2px solid #e8e9eb;
+  height: 10px;
+  width: 10px;
+}
+
+.checkout {
+  background: #f6f6f8;
+  display: grid;
+  grid-template-columns: 140px 200px 1fr;
+  height: 100px;
+  margin: 10px;
+}
+
+.checkout-img {
+  display: grid;
+  justify-content: center;
+}
+
+.checkout-btn {
+  display: grid;
+  align-content: center;
+  margin-right: 50px;
+  justify-content: end;
+}
+
+.checkout img {
+  margin-top: 10px;
+  height: 80px;
+}
+
+.checkout-totals {
+  margin-right: 40px;
+  display: grid;
+  justify-content: center;
+}
+
+.checkout-totals label {
+  margin-top: 10px;
+  color: #d3d3d3;
+}
+
+.checkout p {
+  font-weight: bold;
+}
+
+@media screen and (max-width: 480px) {
+  .menu-items {
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+  }
+  .meal-option {
+    display: inline-block;
+    border: 1px solid #eee;
+    margin: 20px 20px 10px 20px;
+    width: 300px;
+    height: 300px;
+  }
+  .checkout {
+    background: #f6f6f8;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: repeat(3, 1fr);
+    margin: 10px;
+  }
+
+  .checkout img {
+    margin-top: 10px;
+  }
+
+  .checkout-img,
+  .checkout-btn,
+  .checkout-img {
+    grid-row: span 1;
+  }
+
+  .checkout-btn {
+    display: grid;
+    align-content: center;
+    justify-content: end;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .navbar a:not(:first-child) {
+    display: none;
+  }
+  .navbar a.icon {
+    float: right;
+    display: block;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .navbar.responsive {
+    position: relative;
+  }
+  .navbar.responsive a.icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .navbar.responsive a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+}

@@ -5,9 +5,17 @@
   padding: 50px 0 20px;
 }
 
+body {
+  background: #f6f6f8;
+}
+
 .title h3 {
   color: #00a1e0;
   font-size: 30px;
+}
+
+.title p {
+  font-weight: bold;
 }
 
 .login-panel {
@@ -15,6 +23,9 @@
   height: 400px;
   margin: 0 auto;
   border: 1px solid #ced4da;
+  align-content: center;
+  justify-content: center;
+  background: #fff;
 }
 
 .input-container {
