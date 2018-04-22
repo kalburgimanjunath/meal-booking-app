@@ -19,15 +19,18 @@ body {
 }
 
 .login-panel {
-  width: 30%;
-  height: 400px;
-  margin: 0 auto;
+  width: auto;
+  height: auto;
   border: 1px solid #ced4da;
-  align-content: center;
-  justify-content: center;
   background: #fff;
 }
 
 .input-container {
   padding: 20px 20px 0px 20px;
+}
+
+.container {
+  display: grid;
+  justify-content: center;
+  align-items: center;
 }
