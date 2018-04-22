@@ -90,6 +90,17 @@
         <script src="../js/jquery.min.js"></script>
         <script src="../js/jquery.dataTables.min.js"></script>
         <script src="../js/admin.js"></script>
+        <script>
+            $(document).ready(function () {
+                $("#dtable").DataTable({
+                    responsive: true,
+                    order: [
+                        [0, "desc"]
+                    ]
+                });
+
+            });
+        </script>
     </body>
 
 </html>
