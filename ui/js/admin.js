@@ -12,6 +12,15 @@ function deleteItem() {
 }
 
 $(document).ready(function() {
+  $("#menuDate").datepicker({
+    dateFormat: "dd/mm/yy"
+  });
+
+  $("#dtable").DataTable({
+    responsive: true,
+    order: [[0, "desc"]]
+  });
+
   //trigger displaying and closing of a modal
   var modal = document.querySelector(".modal");
   var trigger = document.querySelector(".trigger");

@@ -77,8 +77,14 @@ th {
   justify-content: end;
 }
 
+.meal-actions input[type="checkbox"] {
+  width: 25px;
+  position: relative;
+}
+
 .meal-detail {
   margin-left: 10px;
+  margin-right: 10px;
 }
 
 .thumbnail {
