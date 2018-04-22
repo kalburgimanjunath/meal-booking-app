@@ -41,7 +41,7 @@
                                 <td>Beef with rice, Beef with fries</td>
                                 <td>UGX 40,500</td>
                                 <td>
-                                    <i class="fa fa-edit"></i>
+                                    <i onclick="changeOrder()" class="fa fa-edit"></i>
                                 </td>
                             </tr>
                         </tbody>
@@ -56,6 +56,10 @@
         <script src="./js/jquery.min.js"></script>
         <script src="./js/jquery.dataTables.min.js"></script>
         <script>
+            function changeOrder() {
+                window.document.location = './change_order.html';
+            }
+
             $("#dtable").DataTable({
                 responsive: true,
                 order: [
