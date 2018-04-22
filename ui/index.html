@@ -39,12 +39,12 @@
             <section class="menu-items">
                 <div class="meal-option">
                     <div class="img-container">
-                        <img src="./img/coffee.jpg" alt="">
+                        <img src="./img/food-dinner-pasta.jpg" alt="">
                     </div>
                     <div class="meal-info">
                         <input class="checkbox" type="checkbox">
-                        <h4>Cherry Tomatoes</h4>
-                        <p>English Coffee with cinamon flavour</p>
+                        <h4>Beef with fries</h4>
+                        <p>Cinamon flavour lorem ipsum</p>
                     </div>
                 </div>
 
@@ -54,8 +54,8 @@
                     </div>
                     <div class="meal-info">
                         <input class="checkbox" type="checkbox">
-                        <h4>Potatoes</h4>
-                        <p>Potatoes with cinamon flavour</p>
+                        <h4>Potatoes and chicken</h4>
+                        <p>Potatoes with chicken stew flavour</p>
                     </div>
                 </div>
                 <div class="meal-option">
@@ -64,7 +64,7 @@
                     </div>
                     <div class="meal-info">
                         <input class="checkbox" type="checkbox">
-                        <h4>Cherry Tomatoes</h4>
+                        <h4>Cherry Tomatoes and Rice</h4>
                         <p>English Coffee with cinamon flavour</p>
                     </div>
                 </div>
@@ -74,8 +74,8 @@
                     </div>
                     <div class="meal-info">
                         <input class="checkbox" type="checkbox">
-                        <h4>Potatoes</h4>
-                        <p>Potatoes with cinamon flavour</p>
+                        <h4>Burger</h4>
+                        <p>Burgers mixed with lorem flavour</p>
                     </div>
                 </div>
             </section>
@@ -88,7 +88,7 @@
                     <p for="">UGX 20000</p>
                 </div>
                 <div class="checkout-btn">
-                    <button class="btn btn-blue">Proceed to checkout</button>
+                    <button onclick="proceedToCheckout()" class="btn btn-blue">Proceed to order</button>
                 </div>
             </section>
         </main>
@@ -107,6 +107,12 @@
                     x.className = "navbar";
                 }
             }
+
+            function proceedToCheckout() {
+                localStorage.setItem("item", 24242);
+                window.document.location = './order.html';
+            }
+
             $(document).ready(function () {
                 $("#menuDate").datepicker({
                     dateFormat: 'dd/mm/yy'

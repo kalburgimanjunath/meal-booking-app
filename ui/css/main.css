@@ -147,6 +147,14 @@ input {
   font-weight: bold;
 }
 
+.order-total {
+  margin-top: 20px;
+}
+
+.order-total .amt {
+  font-weight: bolder;
+}
+
 @media screen and (max-width: 480px) {
   .menu-items {
     display: grid;
