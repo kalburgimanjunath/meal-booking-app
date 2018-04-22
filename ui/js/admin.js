@@ -12,13 +12,13 @@ function deleteItem() {
 }
 
 $(document).ready(function() {
-  $("#menuDate").datepicker({
-    dateFormat: "dd/mm/yy"
-  });
-
   $("#dtable").DataTable({
     responsive: true,
     order: [[0, "desc"]]
+  });
+
+  $("#menuDate").datepicker({
+    dateFormat: "dd/mm/yy"
   });
 
   //trigger displaying and closing of a modal
