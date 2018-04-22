@@ -91,14 +91,18 @@ body {
   width: 250px;
 }
 
-.meal-info {
-  background: #fff;
-}
-
-.meal-info h4,
+.meal-info,
 p,
 input {
-  margin-left: 25px;
+  margin-left: 11px;
+}
+
+.meal-info .title {
+  font-weight: bold;
+}
+
+.meal-info .price {
+  color: #00a1e0;
 }
 
 .checkbox {
