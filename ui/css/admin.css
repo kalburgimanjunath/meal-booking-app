@@ -1,0 +1,101 @@
+@import url("../css/common.css");
+
+.admin-container {
+  margin: 10px 100px 0px 100px;
+}
+
+.stats {
+  display: grid;
+  grid-gap: 10px;
+  margin-bottom: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.stat {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e8e9eb;
+  height: 100px;
+}
+
+.stat label {
+  font-size: 15px;
+  color: #ddd;
+  font-weight: bold;
+}
+
+table {
+  display: table;
+}
+
+td,
+th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+#dtable tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#dtable th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #00a1e0;
+  color: white;
+}
+
+.form-container {
+  margin-right: 10px;
+}
+.form-container textarea {
+  width: 100%;
+  border: 2px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.form-container input {
+  margin-left: 0px;
+}
+
+.meals {
+  display: inline-block;
+}
+.meal-o {
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 10px;
+  border: 1px solid #e8e9eb;
+  width: 200px;
+  height: 300px;
+}
+
+.meal-actions {
+  display: inline-block;
+  margin: 10px;
+  justify-content: end;
+}
+
+.meal-detail {
+  margin-left: 10px;
+}
+
+.thumbnail {
+  display: block;
+  margin-left: 10px;
+}
+
+.thumbnail img {
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
+
+.fa-close {
+  color: red;
+}
+
+.fa-edit {
+  color: #00a1e0;
+}
