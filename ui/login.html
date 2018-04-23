@@ -25,7 +25,7 @@
         <div class="container">
 
             <div class="login-panel">
-                <form action="." method="POST">
+                <form>
                     <div class="input-container">
                         <div class="form-grp">
                             <label for="email">Email</label>
@@ -35,7 +35,7 @@
                             <label for="password">Password</label>
                             <input required class="form-input" type="password" id="password" name="password">
                         </div>
-                        <input type="button" class="btn btn-blue" value="Login">
+                        <input onclick="login()" type="button" class="btn btn-blue" value="Login">
                         <p>Don't have an account?
                             <a href="./signup.html">Sign up</a>
                         </p>
@@ -51,6 +51,10 @@
                 } else {
                     x.className = "navbar";
                 }
+            }
+
+            function login() {
+                window.document.location = './admin/index.html';
             }
         </script>
     </body>
