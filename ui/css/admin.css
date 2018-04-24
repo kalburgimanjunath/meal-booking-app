@@ -2,7 +2,7 @@
 @import url("../css/jquery.dataTables.min.css");
 
 .admin-container {
-  margin: 10px 100px 0px 100px;
+  margin: 10px 20px 0px 20px;
 }
 
 .stats {
@@ -105,4 +105,15 @@ th {
 
 .fa-edit {
   color: #00a1e0;
+}
+
+@media screen and (max-width: 480px) {
+  .admin-container {
+    margin: 10px 20px 0px 20px;
+  }
+
+  .meals {
+    display: grid;
+    justify-content: center;
+  }
 }
