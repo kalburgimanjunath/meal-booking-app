@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="./css/main.css">
+        <link rel="stylesheet" href="./css/admin.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+        <title>Book A meal</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="navbar" id="myNavbar">
+                <a href="./index.html">Book A Meal</a>
+                <a href="./index.html" class="active">My Orders</a>
+                <a style="right:0%" href="#">Logout</a>
+                <a href="javascript:void(0);" class="icon" onclick="showMenu()">&#9776;</a>
+            </div>
+        </header>
+        <main>
+            <div class="admin-container">
+                <section class="stats">
+                    <div>
+                        <h4>Your Orders.</h4>
+                    </div>
+                </section>
+                <section>
+                    <table id="dtable">
+                        <thead>
+                            <tr>
+                                <th>Meal Options</th>
+                                <th>Total Cost</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Beef with rice, Beef with fries</td>
+                                <td>UGX 40,500</td>
+                                <td>
+                                    <i onclick="changeOrder()" class="fa fa-edit"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </section>
+            </div>
+        </main>
+        <footer>
+
+        </footer>
+        <script src="./js/jquery.min.js"></script>
+        <script src="./js/jquery.dataTables.min.js"></script>
+        <script src="./js/admin.js"></script>
+        <script>
+            function changeOrder() {
+                window.document.location = './change_order.html';
+            }
+
+            $("#dtable").DataTable({
+                responsive: true,
+                order: [
+                    [0, "desc"]
+                ]
+            });
+        </script>
+    </body>
+
+</html>

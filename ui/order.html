@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="./css/main.css">
+        <link rel="stylesheet" href="./css/admin.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+        <title>Book A meal</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="navbar" id="myNavbar">
+                <a href="./index.html" class="active">Book A Meal</a>
+                <a style="right:0%" href="#">Logout</a>
+                <a href="javascript:void(0);" class="icon" onclick="showMenu()">&#9776;</a>
+            </div>
+        </header>
+        <main>
+            <div class="admin-container">
+                <section class="stats">
+                    <div>
+                        <h4>Your Order Checkout.</h4>
+                    </div>
+                </section>
+                <section class="meals">
+                    <div class="meal-o">
+                        <div class="meal-actions">
+                            <i class="fa fa-close"></i>
+                        </div>
+                        <div class="thumbnail">
+                            <img src="./img/coffee.jpg" alt="">
+                        </div>
+                        <div class="meal-detail">
+                            <h4>Beef with rice:
+                                <span>UGX 30,000</span>
+                            </h4>
+                            <label>English Coffee with cinamon flavour</label>
+                        </div>
+                    </div>
+
+                    <div class="meal-o">
+                        <div class="meal-actions">
+                            <i class="fa fa-close"></i>
+                        </div>
+                        <div class="thumbnail">
+                            <img src="./img/photo3.jpeg" alt="">
+                        </div>
+                        <div class="meal-detail">
+                            <h4>Beef with fries:
+                                <span>UGX 15,000</span>
+                            </h4>
+                            <label>Lorem ispum with cinamonerf vour</label>
+                        </div>
+                    </div>
+
+                </section>
+                <section class="order-total">
+                    <div>
+                        <label for="total">Total: </label>
+                        <label class="amt" for="amount">UGX 45,000</label>
+
+                        <button onclick="cancelOrder()" class="btn btn-d">Cancel</button>
+                        <button onclick="makeOrder()" class="btn btn-g">Order</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+        <footer>
+
+        </footer>
+        <script src="./js/jquery.min.js"></script>
+        <script src="./js/admin.js"></script>
+        <script>
+            function cancelOrder() {
+                window.document.location = './index.html';
+            }
+
+            function makeOrder() {
+                window.document.location = './orders.html';
+            }
+        </script>
+    </body>
+
+</html>
