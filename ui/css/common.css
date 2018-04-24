@@ -73,6 +73,10 @@ label {
   margin-bottom: 0.5rem;
 }
 
+.float-right {
+  float: right;
+}
+
 .modal {
   position: fixed;
   left: 0;
