@@ -19,7 +19,7 @@ manager.add_command("shell", Shell(make_context=make_shell_context))
 def test():
     "Function to run unit tests"
     import unittest
-    tests = unittest.TestLoader().discover('tests', pattern='test*.py')
+    tests = unittest.TestLoader().discover('tests')  # pattern='test*.py'
     result = unittest.TextTestRunner(verbosity=2).run(tests)
 
     return not result.wasSuccessful()

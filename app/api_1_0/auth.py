@@ -45,7 +45,8 @@ class Register(Resource):
         user.password = password
         user.save()
         return {
-            'user': user.to_dict()
+            'user': user.to_dict(),
+            'token': user.generate_jwt_token()
         }, 201
 
 
@@ -78,15 +79,15 @@ class RegisterBusiness(Resource):
         catering = Catering(name=business_name, address=address)
         catering.admin = user
         catering.save()
+
         return {
             'user': user.to_dict(),
+            'token': user.generate_jwt_token(),
             'business': catering.to_dict()
         }, 201
 
 
 class Login(Resource):
-    # method_decorators = [authenticate]
-
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=str_type, required=True,
