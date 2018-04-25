@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask_restful import Api, Resource, url_for
+from flask_restplus import Api, Resource
 
 from .auth import Login, Register, RegisterBusiness
 

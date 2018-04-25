@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse, fields
+from flask_restplus import Resource, reqparse
 from ..models import User, Catering
 from .decorators import authenticate
 
@@ -13,8 +13,11 @@ def email_type(value):
         raise ValueError("Email already in use")
     return value
 
+# Resource.method_decorators.append(authenticate)
+
 
 class Register(Resource):
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str, required=True,

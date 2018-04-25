@@ -12,14 +12,14 @@ def authenticate(func):
         access_token = request.headers.get('Authorization')
         if not access_token or len(access_token) == 0:
             return {
-                'message': 'No Bearer token in Authorisation header'
+                'error': 'No Bearer token in Authorisation header'
             }, 401
 
         token = access_token.split('Bearer ')[1]
         user = User.verify_jwt_token(token)
         if not user:
             return {
-                'message': 'Authorisation failed'
+                'error': 'Authorisation failed'
             }, 401
         g.current_user = user
         g.token_used = True
