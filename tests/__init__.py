@@ -1,11 +1,10 @@
 import unittest
-import flask
 from app import create_application
 
 
 class ApiTestCase(unittest.TestCase):
 
-    def Setup(self):
+    def setUp(self):
         self.app = create_application('testing')
         self.app_context = self.app.app_context()
         self.client = self.app.test_client
