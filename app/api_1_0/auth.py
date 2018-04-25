@@ -1,16 +1,25 @@
 from flask_restplus import Resource, reqparse
 from ..models import User, Catering
 from .decorators import authenticate
+from .import api
 
 
 def email_type(value):
-    if not value:
-        raise ValueError("Email field is required")
     if not isinstance(value, str):
         raise ValueError("Email must be a string")
+    if not value or len(value.strip(' ')) == 0:
+        raise ValueError("Email field is required")
     user = User.get_by_email(value)
     if user is not None:
         raise ValueError("Email already in use")
+    return value
+
+
+def str_type(value):
+    if not isinstance(value, str):
+        raise ValueError("Field value must be a string")
+    if not value or len(value.strip(' ')) == 0:
+        raise ValueError("This field cannot be empty")
     return value
 
 # Resource.method_decorators.append(authenticate)
@@ -20,10 +29,10 @@ class Register(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, required=True,
+        parser.add_argument('name', type=str_type, required=True,
                             help='Name field is required')
         parser.add_argument('email', type=email_type, required=True)
-        parser.add_argument('password', type=str, required=True,
+        parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
 
@@ -43,14 +52,14 @@ class Register(Resource):
 class RegisterBusiness(Resource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('businessAddress', type=str,
+        parser.add_argument('businessAddress', type=str_type,
                             help='Business Address field is required')
-        parser.add_argument('businessName', type=str,
+        parser.add_argument('businessName', type=str_type,
                             help='Business Name field is required')
-        parser.add_argument('name', type=str, required=True,
+        parser.add_argument('name', type=str_type, required=True,
                             help='Name field is required')
         parser.add_argument('email', type=email_type, required=True)
-        parser.add_argument('password', type=str, required=True,
+        parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
 
@@ -80,9 +89,9 @@ class Login(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True,
+        parser.add_argument('username', type=str_type, required=True,
                             help='Username field is required')
-        parser.add_argument('password', type=str, required=True,
+        parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
 
