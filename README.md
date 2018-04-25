@@ -25,3 +25,7 @@ It is stored in the UI folder in the `app-ui branch` which includes the template
 * A page where an admin can set menu for a specific using the meal options
 
 * UI Designs for the front-end application are hosted on [Github-Pages](https://solnsubuga.github.io/meal-booking-app/ui/)
+
+## Dependicies
+
+* flask
