@@ -1,5 +1,6 @@
 import unittest
 from app import create_application
+from app.models import User
 
 
 class ApiTestCase(unittest.TestCase):
@@ -25,6 +26,8 @@ class ApiTestCase(unittest.TestCase):
             'email': 'solo.nsubuga@andela.com',
             'password': 'AwesomeAndela'
         }
+
+        self.user = User('solo', 'solo@gmail.com')
 
         self.test_business_user = {
             'email': 'solo@gmail.com',
