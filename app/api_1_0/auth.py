@@ -3,18 +3,6 @@ from ..models import User, Catering
 from .decorators import authenticate
 
 
-user_fields = {
-    'id': fields.Integer,
-    'email': fields.String,
-    'name': fields.String
-}
-
-auth_fields = {
-    'token': fields.String,
-    'user': user_fields
-}
-
-
 def email_type(value):
     if not value:
         raise ValueError("Email field is required")
@@ -85,7 +73,6 @@ class RegisterBusiness(Resource):
 
 
 class Login(Resource):
-    method_decorators = [authenticate]
 
     def post(self):
         parser = reqparse.RequestParser()
