@@ -29,3 +29,4 @@ It is stored in the UI folder in the `app-ui branch` which includes the template
 ## Dependicies
 
 * flask
+* flask-restful
