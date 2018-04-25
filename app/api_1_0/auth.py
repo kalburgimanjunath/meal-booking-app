@@ -73,6 +73,7 @@ class RegisterBusiness(Resource):
 
 
 class Login(Resource):
+    # method_decorators = [authenticate]
 
     def post(self):
         parser = reqparse.RequestParser()
