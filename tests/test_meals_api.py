@@ -16,30 +16,10 @@ class TestMealsApiTestCase(ApiTestCase):
 
     def test_only_admin_can_access_meals(self):
         # use test user
-        response = self.make_post_request(
-            self.user_login_endpoint, {'username': 'test@test.com',
-                                       'password': 'test'})
-        json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(response.status_code, 200)  # user successfully logins
-        token = json_response.get('token')
-        token = 'Bearer ' + token
-        self.assertIsNotNone(token)  # verify that we have the token
-
+        token = self.login_test_user()
         res = self.client().get(self.meals_endpoint, headers={
             'Authorization': token})
         self.assertEqual(res.status_code, 403)
-
-    def login_admin(self):
-        # use test admin_user
-        response = self.make_post_request(
-            self.user_login_endpoint, {'username': 'admin@admin.com',
-                                       'password': 'admin'})
-        json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(response.status_code, 200)  # user successfully logins
-        token = json_response.get('token')
-        token = 'Bearer ' + token
-        self.assertIsNotNone(token)  # verify that we have the token
-        return token
 
     def test_admin_can_access_meals(self):
         token = self.login_admin()
