@@ -15,6 +15,7 @@ class ApiTestCase(unittest.TestCase):
         self.user_register_endpoint = '/api/v1/auth/signup'
         self.user_login_endpoint = '/api/v1/auth/login'
         self.business_register_endpoint = '/api/v1/auth/business/signup'
+        self.meals_endpoint = '/api/v1/meals'
 
         self.test_user = {
             'email': 'solo@andela.com',
