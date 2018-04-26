@@ -127,7 +127,8 @@ class Menu:
         self.id = None
         self.title = title
         self.description = description
-        self.meal_options = []
+        self.meals = []
+        self.menu_date = None
         self.catering = None
 
     def save(self):
@@ -142,7 +143,8 @@ class Menu:
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'meals': [meal.to_dict() for meal in self.meal_options]
+            'meals': [meal.to_dict() for meal in self.meals],
+            'menuDate': self.menu_date
         }
 
 
