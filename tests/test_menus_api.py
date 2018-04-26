@@ -1,8 +1,6 @@
 import unittest
-import json
 from tests import ApiTestCase
-from app.models import User
-import json
+from app.models import User, data
 
 
 class TestMenusApiTestCase(ApiTestCase):
@@ -30,10 +28,7 @@ class TestMenusApiTestCase(ApiTestCase):
             "menuDate": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
-            "meals": [
-                1,
-                2
-            ]
+            "meals": [meal.id for meal in data.meals]
         }
         res = self.client().post(
             self.menu_endpoint,
@@ -49,10 +44,7 @@ class TestMenusApiTestCase(ApiTestCase):
             "menuDate": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
-            "meals": [
-                1,
-                2
-            ]
+            "meals": [meal.id for meal in data.meals]
         }
         res = self.client().post(self.menu_endpoint, data=menu)
         self.assertEqual(res.status_code, 401)
@@ -63,10 +55,7 @@ class TestMenusApiTestCase(ApiTestCase):
             "menuDate": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
-            "meals": [
-                1,
-                2
-            ]
+            "meals": [meal.id for meal in data.meals]
         }
         res = self.client().post(
             self.menu_endpoint,
