@@ -22,8 +22,6 @@ def str_type(value):
         raise ValueError("This field cannot be empty")
     return value
 
-# Resource.method_decorators.append(authenticate)
-
 
 class Register(Resource):
 

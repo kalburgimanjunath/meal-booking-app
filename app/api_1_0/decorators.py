@@ -8,6 +8,10 @@ def authenticate(func):
     def wrapper(*args, **kwargs):
         if not getattr(func, 'authenticated', True):
             return func(*args, **kwargs)
+        if 'Authorization' not in request.headers:
+            return {
+                'error': 'No Bearer token in Authorisation header'
+            }, 401
 
         access_token = request.headers.get('Authorization')
         if not access_token or len(access_token) == 0:

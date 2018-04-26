@@ -12,14 +12,16 @@ def str_type(value):
 
 
 class MealsResource(Resource):
-    Resource.method_decorators.append(admin_required)
-    Resource.method_decorators.append(authenticate)
 
+    @authenticate
+    @admin_required
     def get(self):
         return {
             'meals': [meal.to_dict() for meal in data.meals]
         }, 200
 
+    @authenticate
+    @admin_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
@@ -41,9 +43,9 @@ class MealsResource(Resource):
 
 
 class MealResource(Resource):
-    Resource.method_decorators.append(admin_required)
-    Resource.method_decorators.append(authenticate)
 
+    @authenticate
+    @admin_required
     def get(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
@@ -54,6 +56,8 @@ class MealResource(Resource):
             'meal': meal.to_dict()
         }, 200
 
+    @authenticate
+    @admin_required
     def put(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
@@ -76,6 +80,8 @@ class MealResource(Resource):
             'meal': meal.to_dict()
         }, 200
 
+    @authenticate
+    @admin_required
     def delete(self, mealId):
         for meal in data.meals:
             if meal.id == mealId:
