@@ -1,0 +1,26 @@
+
+language: python
+python:
+  - "3.6"
+env: 
+  global:
+    - CC_TEST_REPORTER_ID=e728c805232105aa2e77968d53360977e2961efab1b9a91dd60b2dc43025dab2
+  
+install:
+  - pip install -r requirements.txt
+
+
+# command to run tests    
+script:
+  #- pytest tests/.
+  - coverage run --source='app/' manage.py test  
+  - coverage report
+
+# generate code climate report  
+after_script:
+  - codeclimate-test-reporter
+  - coveralls
+
+# push report to coveralls.io
+after_success:
+  - coveralls

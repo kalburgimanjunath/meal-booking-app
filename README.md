@@ -2,6 +2,8 @@
 
 An application that allows customers to make food orders and helps the food vendor know what the customers want to eat.
 
+[![Coverage Status](https://coveralls.io/repos/github/solnsubuga/meal-booking-app/badge.svg?branch=master)](https://coveralls.io/github/solnsubuga/meal-booking-app?branch=master)
+
 ## Description
 
 meal-booking-app is a web application to be built withg reactjs/redux and flask micro framework.
