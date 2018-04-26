@@ -192,8 +192,9 @@ class Order:
         self.id = None
         self.meals = []
         self.total_cost = 0
-        self.user = None
+        self.user = User(None, None)
         self.catering = None
+        self.expires_at = None
 
     def save(self):
         if not data.orders:
@@ -202,9 +203,18 @@ class Order:
             self.id = data.orders[-1].id + 1
         data.orders.append(self)
 
+    @staticmethod
+    def get_by_id(id):
+        for order in data.orders:
+            if order.id == id:
+                return order
+        return None
+
     def to_dict(self):
         return {
             'id': self.id,
             'cost': self.total_cost,
-            'meals': [meal.to_dict() for meal in self.meals]
+            'expiresAt': str(self.expires_at),
+            'meals': [meal.to_dict() for meal in self.meals],
+            'customer': self.user.to_dict()
         }
