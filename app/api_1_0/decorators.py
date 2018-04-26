@@ -6,8 +6,6 @@ from ..models import User
 def authenticate(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not getattr(func, 'authenticated', True):
-            return func(*args, **kwargs)
         if 'Authorization' not in request.headers:
             return {
                 'error': 'No Bearer token in Authorisation header'
@@ -26,9 +24,7 @@ def authenticate(func):
                 'error': 'Authorisation failed'
             }, 401
         g.current_user = user
-        g.token_used = True
         return func(*args, **kwargs)
-        # restful.abort(401)
     return wrapper
 
 

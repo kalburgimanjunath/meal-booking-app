@@ -2,6 +2,7 @@ from flask_restplus import Resource, reqparse
 from ..models import User, Catering
 from .decorators import authenticate
 from .import api
+from .common import str_type
 
 
 def email_type(value):
@@ -12,14 +13,6 @@ def email_type(value):
     user = User.get_by_email(value)
     if user is not None:
         raise ValueError("Email already in use")
-    return value
-
-
-def str_type(value):
-    if not isinstance(value, str):
-        raise ValueError("Field value must be a string")
-    if not value or len(value.strip(' ')) == 0:
-        raise ValueError("This field cannot be empty")
     return value
 
 
@@ -61,20 +54,16 @@ class RegisterBusiness(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
-
-        name = args['name']
-        email = args['email']
         password = args['password']
-        address = args['businessAddress']
-        business_name = args['businessName']
-        # create user and return the created user
 
-        user = User(name=name, email=email)
+        # create user and return the created user
+        user = User(name=args['name'], email=args['email'])
         user.password = password
         user.is_admin = True
         user.save()
 
-        catering = Catering(name=business_name, address=address)
+        catering = Catering(name=args['businessName'],
+                            address=args['businessAddress'])
         catering.admin = user
         catering.save()
 

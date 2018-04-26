@@ -5,14 +5,6 @@ from .decorators import authenticate, admin_required
 import datetime
 
 
-def str_type(value):
-    if not isinstance(value, str):
-        raise ValueError("Field value must be a string")
-    if not value or len(value.strip(' ')) == 0:
-        raise ValueError("This field cannot be empty")
-    return value
-
-
 class OrderResource(Resource):
     @authenticate
     def get(self, orderId):
@@ -29,19 +21,15 @@ class OrderResource(Resource):
     @authenticate
     def put(self, orderId):
         order = Order.get_by_id(orderId)
-
         if not order:
             return {
                 'error': 'Order with such id {} doesnot exist'.format(orderId)
             }, 400
         time_diff = datetime.timedelta(current_app.config['ORDER_EXPIRES_IN'])
-        current_time = datetime.datetime.now()
-
-        if order.expires_at and current_time - order.expires_at > time_diff:
+        if order.expires_at and datetime.datetime.now() - order.expires_at > time_diff:
             return {
                 'error': 'Order expired and cannot be modify it'
             }, 400
-
         parser = reqparse.RequestParser()
         parser.add_argument(
             'meals', help='Meals list is required', action='append')
