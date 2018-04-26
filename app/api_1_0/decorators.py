@@ -26,3 +26,15 @@ def authenticate(func):
         return func(*args, **kwargs)
         # restful.abort(401)
     return wrapper
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # TODO: change this in upcoming challenges
+        if not g.current_user.is_admin:
+            return {
+                'error': '403 forbidden access is denied'
+            }, 403
+        return f(*args, **kwargs)
+    return decorated_function

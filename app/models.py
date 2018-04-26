@@ -53,7 +53,8 @@ class User:
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email
+            'email': self.email,
+            'is_admin': self.is_admin
         }
 
     @staticmethod
@@ -164,11 +165,19 @@ class MealOption:
             self.id = data.meals[-1].id + 1
         data.meals.append(self)
 
+    @staticmethod
+    def get_by_id(id):
+        for meal in data.meals:
+            if meal.id == id:
+                return meal
+        return None
+
     def to_dict(self):
         return {
             'id': self.id,
             'title': self.title,
-            'description': self.description
+            'description': self.description,
+            'price': self.price
         }
 
 
