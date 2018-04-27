@@ -26,10 +26,11 @@ class OrderResource(Resource):
                 'error': 'Order with such id {} doesnot exist'.format(orderId)
             }, 400
         time_diff = datetime.timedelta(current_app.config['ORDER_EXPIRES_IN'])
-        if order.expires_at and datetime.datetime.now() - order.expires_at > time_diff:
+        if order.expires_at and datetime.datetime.now() - order.expires_at > time_diff:  # noqa
             return {
                 'error': 'Order expired and cannot be modify it'
             }, 400
+
         parser = reqparse.RequestParser()
         parser.add_argument(
             'meals', help='Meals list is required', action='append')

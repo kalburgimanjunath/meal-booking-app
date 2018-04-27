@@ -34,7 +34,58 @@ It is stored in the UI folder in the `app-ui branch` which includes the template
 
 * UI Designs for the front-end application are hosted on [Github-Pages](https://solnsubuga.github.io/meal-booking-app/ui/)
 
-## Dependicies
+## Dependancies
 
-* flask
-* flask-restful
+* [python 3.6](https://www.python.org/downloads/release/python-360/)
+* [flask](flask.pocoo.org/)
+* [flask-Restplus](https://flask-restplus.readthedocs.io/)
+* [virtualenv](https://virtualenv.pypa.io/en/stable/)
+* [flask-script]()
+
+## Set Up
+
+In order to run the API Application
+
+1.  Clone this Repository to your development machine
+
+    * Start by copying the url to this Repository
+      > https://github.com/solnsubuga/meal-booking-app.git
+    * Run this command in git bash to create the repo locally
+      `git clone https://github.com/solnsubuga/meal-booking-app.git`
+
+2.  Create a virtual environment inside api-appliction folder using in a terminal shell `virtualenv ENV`
+
+3.  Activate the virtual environment but running the following command `env\scripts\activate`
+
+4.  Install the dependencies by running the following command in a terminal shell `pip install requirements.txt`
+
+5.  Run the application by running commands `python manage.py runserver`
+
+## API End points
+
+| EndPoint                       | Method |
+| ------------------------------ | ------ |
+| `/api/v1/auth/signup`          | POST   |
+| `/api/v1/auth/login`           | POST   |
+| `/api/v1/auth/business/signup` | POST   |
+| `/api/v1/meals`                | GET    |
+| `/api/v1/meals`                | POST   |
+| `/api/v1/meals/<mealId>`       | DELETE |
+| `/api/v1/meals/<mealId>`       | GET    |
+| `/api/v1/meals/<mealId>`       | PUT    |
+| `/api/v1/menu`                 | GET    |
+| `/api/v1/menu`                 | POST   |
+| `/api/v1/orders`               | GET    |
+| `/api/v1/orders`               | POST   |
+| `/api/v1/orders/<orderId>`     | GET    |
+| `/api/v1/orders/<orderId>`     | PUT    |
+
+1.  Test the endpoints using [Postman](https://www.getpostman.com/) or [Curl](https://curl.haxx.se/)
+
+2.  To test the endpoints For example Run `python manage.py test`
+
+## Deployment
+
+The application is deployed on Heroku Server at
+
+>
