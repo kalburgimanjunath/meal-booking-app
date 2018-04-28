@@ -53,11 +53,11 @@ In order to run the API Application
     * Run this command in git bash to create the repo locally
       `git clone https://github.com/solnsubuga/meal-booking-app.git`
 
-2.  Create a virtual environment inside api-appliction folder using in a terminal shell `virtualenv ENV`
+2.  Create a virtual environment in a terminal shell `virtualenv env`
 
 3.  Activate the virtual environment but running the following command `env\scripts\activate`
 
-4.  Install the dependencies by running the following command in a terminal shell `pip install requirements.txt`
+4.  Install the dependencies by running the following command in a terminal shell `pip install -r requirements.txt`
 
 5.  Run the application by running commands `python manage.py runserver`
 
