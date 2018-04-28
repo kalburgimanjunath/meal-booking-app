@@ -1,5 +1,3 @@
-import unittest
-import json
 from tests import ApiTestCase
 from app.models import User
 

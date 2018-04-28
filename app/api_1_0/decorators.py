@@ -6,25 +6,21 @@ from ..models import User
 def authenticate(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if 'Authorization' not in request.headers:
-            return {
+        if 'Authorization' in request.headers:
+            access_token = request.headers.get('Authorization')
+            if access_token and len(access_token) != 0:
+                token = access_token.split(' ')[1]
+                user = User.verify_jwt_token(token)
+                if user:
+                    g.current_user = user
+                    return func(*args,**kwargs)
+                else:
+                    return {
+                        'error': 'Authorization failed try again'
+                    }, 401
+        return {
                 'error': 'No Bearer token in Authorisation header'
             }, 401
-
-        access_token = request.headers.get('Authorization')
-        if not access_token or len(access_token) == 0:
-            return {
-                'error': 'No Bearer token in Authorisation header'
-            }, 401
-
-        token = access_token.split('Bearer ')[1]
-        user = User.verify_jwt_token(token)
-        if not user:
-            return {
-                'error': 'Authorisation failed'
-            }, 401
-        g.current_user = user
-        return func(*args, **kwargs)
     return wrapper
 
 
