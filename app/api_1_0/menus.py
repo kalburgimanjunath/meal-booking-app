@@ -1,8 +1,16 @@
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ..models import Menu, data, MealOption
 from .decorators import authenticate, admin_required
 from datetime import datetime
 from .common import str_type
+from . import api
+
+menu_model = api.model('Menu', {
+    'menuDate': fields.String('Menu date'),
+    'title': fields.String('Title'),
+    'description': fields.String('Description(Optional)'),
+    'meals': fields.String('List of meals')
+})
 
 
 class MenusResource(Resource):
@@ -29,6 +37,7 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
+    @api.expect(menu_model)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('menuDate', type=str_type,

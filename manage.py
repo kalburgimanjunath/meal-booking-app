@@ -7,24 +7,6 @@ app = create_application(os.getenv('MEAL_APP_CONFIG') or 'default')
 
 manager = Manager(app)
 
-# create a test user
-test_user = User(name='test', email='test@test.com')
-test_user.password = 'test'
-test_user.save()
-
-# create a test admin user
-admin_user = User('admin', email='admin@admin.com')
-admin_user.password = 'admin'
-admin_user.is_admin = True
-admin_user.save()
-
-# create a test meal
-meal = MealOption('lorem meal', 10000)
-meal.save()
-
-meal = MealOption('Beef with rice', 1500)
-meal.save()
-
 
 def make_shell_context():
     return dict(app=app, User=User, data=data)

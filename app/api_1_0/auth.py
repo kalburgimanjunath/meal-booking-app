@@ -1,8 +1,17 @@
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ..models import User, Catering
 from .decorators import authenticate
 from .import api
 from .common import str_type
+
+login_modal = api.model('login', {'username': fields.String('Username.'),
+                                  'password': fields.String('Password')})
+
+register_modal = api.model('register',
+                           {'name': fields.String('Your Name'),
+                            'email': fields.String('Your Email'),
+                               'password': fields.String('Your Password')
+                            })
 
 
 def email_type(value):
@@ -17,7 +26,7 @@ def email_type(value):
 
 
 class Register(Resource):
-
+    @api.expect(register_modal)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str_type, required=True,
@@ -41,7 +50,17 @@ class Register(Resource):
         }, 201
 
 
+signup_business = api.model('business_signup', {
+    'businessAddress': fields.String('Your business Address'),
+    'businessName': fields.String('Your business name'),
+    'email': fields.String('Your email'),
+    'name': fields.String('Your Name'),
+    'password': fields.String('Your password')
+})
+
+
 class RegisterBusiness(Resource):
+    @api.expect(signup_business)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('businessAddress', type=str_type,
@@ -75,6 +94,7 @@ class RegisterBusiness(Resource):
 
 
 class Login(Resource):
+    @api.expect(login_modal)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=str_type, required=True,

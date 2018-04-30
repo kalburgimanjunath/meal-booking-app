@@ -1,8 +1,13 @@
 from flask import g, current_app
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 from ..models import Order, data, MealOption
 from .decorators import authenticate, admin_required
 import datetime
+from . import api
+
+order_model = api.model('order', {
+    'meals': fields.String('A list of meal options to order')
+})
 
 
 class OrderResource(Resource):
@@ -19,6 +24,7 @@ class OrderResource(Resource):
         }, 200
 
     @authenticate
+    @api.expect(order_model)
     def put(self, orderId):
         order = Order.get_by_id(orderId)
         if not order:
@@ -61,6 +67,7 @@ class OrdersResource(Resource):
         }
 
     @authenticate
+    @api.expect(order_model)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument(
