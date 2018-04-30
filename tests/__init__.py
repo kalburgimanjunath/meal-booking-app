@@ -59,7 +59,8 @@ class ApiTestCase(unittest.TestCase):
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
-        token = 'Bearer ' + token
+        # token = 'Bearer ' + token
+
         self.assertIsNotNone(token)  # verify that we have the token
         return token
 
@@ -70,7 +71,8 @@ class ApiTestCase(unittest.TestCase):
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
-        token = 'Bearer ' + token
+        # token = 'Bearer ' + token
+
         self.assertIsNotNone(token)  # verify that we have the token
         return token
 
