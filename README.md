@@ -88,4 +88,8 @@ In order to run the API Application
 
 The application is deployed on Heroku Server at
 
->
+>https://mealbooking-api.herokuapp.com/api/v1/#!/default
+
+## License
+
+The project is licensed under MIT License.
