@@ -16,6 +16,7 @@ menu_model = api.model('Menu', {
 class MenusResource(Resource):
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
             'menus': [menu.to_dict() for menu in data.menus]
@@ -24,6 +25,7 @@ class MenusResource(Resource):
 
 class MenuResource(Resource):
     @authenticate
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         current_date = datetime.now().date()
         for menu in data.menus:
@@ -38,6 +40,7 @@ class MenuResource(Resource):
     @authenticate
     @admin_required
     @api.expect(menu_model)
+    @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('menuDate', type=str_type,
