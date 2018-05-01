@@ -23,6 +23,7 @@ class MealsResource(Resource):
     @authenticate
     @admin_required
     @api.expect(meal_modal)
+    @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
@@ -47,6 +48,7 @@ class MealResource(Resource):
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
@@ -60,6 +62,9 @@ class MealResource(Resource):
     @authenticate
     @admin_required
     @api.expect(meal_modal)
+    @api.doc(responses={200: 'Success', 400: 'Bad request',
+                        401: 'Authorization failed'})
+    @api.header('Authorization', type=str, description='Authentication token')
     def put(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
@@ -84,6 +89,7 @@ class MealResource(Resource):
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def delete(self, mealId):
         for meal in data.meals:
             if meal.id == mealId:
