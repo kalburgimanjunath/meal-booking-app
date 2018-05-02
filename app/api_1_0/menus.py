@@ -19,7 +19,8 @@ class MenusResource(Resource):
     @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
-            'menus': [menu.to_dict() for menu in data.menus]
+            'menus': [menu.to_dict() for menu in data.menus],
+            'status': 'success'
         }, 200
 
 
@@ -30,9 +31,7 @@ class MenuResource(Resource):
         current_date = datetime.now().date()
         for menu in data.menus:
             if menu.menu_date == str(current_date):
-                return {
-                    'menu': menu.to_dict()
-                }, 200
+                return menu.to_dict(), 200
         return {
             'message': 'menu not yet set.'
         }, 200
@@ -59,6 +58,4 @@ class MenuResource(Resource):
             if meal:
                 menu.meals.append(meal)
         menu.save()
-        return {
-            'menu': menu.to_dict()
-        }, 201
+        return menu.to_dict(), 201

@@ -18,7 +18,8 @@ class MealsResource(Resource):
     @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
-            'meals': [meal.to_dict() for meal in data.meals]
+            'meals': [meal.to_dict() for meal in data.meals],
+            'status': 'success'
         }, 200
 
     @authenticate
@@ -40,9 +41,7 @@ class MealsResource(Resource):
         meal = MealOption(title=title, price=price, description=description)
         meal.save()
 
-        return {
-            'meal': meal.to_dict()
-        }, 201
+        return meal.to_dict(), 201
 
 
 class MealResource(Resource):
@@ -56,9 +55,7 @@ class MealResource(Resource):
             return {
                 'error': 'Bad request, no meal with such id exists'
             }, 400
-        return {
-            'meal': meal.to_dict()
-        }, 200
+        return meal.to_dict(), 200
 
     @authenticate
     @admin_required
@@ -84,9 +81,7 @@ class MealResource(Resource):
         meal.price = args['price']
         meal.description = args['description']
 
-        return {
-            'meal': meal.to_dict()
-        }, 200
+        return meal.to_dict(), 200
 
     @authenticate
     @admin_required
