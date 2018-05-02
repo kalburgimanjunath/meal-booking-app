@@ -44,10 +44,7 @@ class Register(Resource):
         user = User(name=name, email=email)
         user.password = password
         user.save()
-        return {
-            'user': user.to_dict(),
-            'token': user.generate_jwt_token()
-        }, 201
+        return user.to_dict(), 201
 
 
 signup_business = api.model('business_signup', {
@@ -88,7 +85,6 @@ class RegisterBusiness(Resource):
 
         return {
             'user': user.to_dict(),
-            'token': user.generate_jwt_token(),
             'business': catering.to_dict()
         }, 201
 
