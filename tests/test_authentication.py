@@ -30,7 +30,7 @@ class AuthenticationTestCase(ApiTestCase):
         user.password = 'test'
         user.save()
         res = self.make_post_request(
-            self.user_login_endpoint, {'username': 'solo@yahoo.com',
+            self.user_login_endpoint, {'email': 'solo@yahoo.com',
                                        'password': 'test'})
         self.assertEqual(res.status_code, 200)
 
@@ -44,7 +44,7 @@ class AuthenticationTestCase(ApiTestCase):
         user.password = 'test'
         user.save()
         res = self.make_post_request(
-            self.user_login_endpoint, {'username': 'solo@yahoo.com',
+            self.user_login_endpoint, {'email': 'solo@yahoo.com',
                                        'password': 'test'})
         self.assertEqual(res.status_code, 200)
         self.assertIn('token', str(res.data))
