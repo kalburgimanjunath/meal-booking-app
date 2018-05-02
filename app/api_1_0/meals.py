@@ -15,6 +15,7 @@ class MealsResource(Resource):
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
             'meals': [meal.to_dict() for meal in data.meals]
