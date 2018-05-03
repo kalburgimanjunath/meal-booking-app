@@ -26,7 +26,7 @@ class ApiTestCase(unittest.TestCase):
         }
 
         self.test_login_user = {
-            'username': 'solo.nsubuga@andela.com',
+            'email': 'solo.nsubuga@andela.com',
             'password': 'AwesomeAndela'
         }
 
@@ -54,7 +54,7 @@ class ApiTestCase(unittest.TestCase):
     def login_admin(self):
         # use test admin_user
         response = self.make_post_request(
-            self.user_login_endpoint, {'username': 'admin@admin.com',
+            self.user_login_endpoint, {'email': 'admin@admin.com',
                                        'password': 'admin'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
@@ -66,7 +66,7 @@ class ApiTestCase(unittest.TestCase):
 
     def login_test_user(self):
         response = self.make_post_request(
-            self.user_login_endpoint, {'username': 'test@test.com',
+            self.user_login_endpoint, {'email': 'test@test.com',
                                        'password': 'test'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins

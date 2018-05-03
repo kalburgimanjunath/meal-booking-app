@@ -26,6 +26,21 @@ class TestMealsApiTestCase(ApiTestCase):
             'Authorization': token})
         self.assertEqual(res.status_code, 200)
 
+    def test_customer_cannot_post_meals(self):
+        token = self.login_test_user()
+        res = self.client().post(
+            self.meals_endpoint,
+            headers={
+                'Authorization': token
+            },
+            data={
+                'title': 'Beef with posho',
+                'price': 1000,
+                'description': 'lorem ispunm'
+            }
+        )
+        self.assertEqual(res.status_code, 403)
+
     def test_admin_can_post_meal(self):
         token = self.login_admin()
         res = self.client().post(
@@ -66,6 +81,16 @@ class TestMealsApiTestCase(ApiTestCase):
             }
         )
         self.assertEqual(res.status_code, 200)
+
+    def test_customer_cannot_delete_meal(self):
+        token = self.login_test_user()
+        res = self.client().delete(
+            self.meals_endpoint + '/2',
+            headers={
+                'Authorization': token
+            }
+        )
+        self.assertEqual(res.status_code, 403)
 
     def test_admin_cannot_delete_that_doesnot_exist(self):
         token = self.login_admin()

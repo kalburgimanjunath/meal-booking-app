@@ -2,17 +2,13 @@
 
 An application that allows customers to make food orders and helps the food vendor know what the customers want to eat.
 
-[![Build Status](https://travis-ci.org/solnsubuga/meal-booking-app.svg?branch=master)](https://travis-ci.org/solnsubuga/meal-booking-app)
-
-[![Maintainability](https://api.codeclimate.com/v1/badges/4f5531763259f4e6d2ae/maintainability)](https://codeclimate.com/github/solnsubuga/meal-booking-app/maintainability)
-
-[![Test Coverage](https://api.codeclimate.com/v1/badges/4f5531763259f4e6d2ae/test_coverage)](https://codeclimate.com/github/solnsubuga/meal-booking-app/test_coverage)
-
+[![Build Status](https://travis-ci.org/solnsubuga/meal-booking-app.svg?branch=master)](https://travis-ci.org/solnsubuga/meal-booking-app) 
+[![Maintainability](https://api.codeclimate.com/v1/badges/4f5531763259f4e6d2ae/maintainability)](https://codeclimate.com/github/solnsubuga/meal-booking-app/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/4f5531763259f4e6d2ae/test_coverage)](https://codeclimate.com/github/solnsubuga/meal-booking-app/test_coverage)
 [![Coverage Status](https://coveralls.io/repos/github/solnsubuga/meal-booking-app/badge.svg?branch=master)](https://coveralls.io/github/solnsubuga/meal-booking-app?branch=master)
 
 ## Description
 
-meal-booking-app is a web application to be built withg reactjs/redux and flask micro framework.
+meal-booking-app is a web application to be built with reactjs/redux and flask micro framework.
 
 ## Front End(UI) Designs
 
@@ -86,6 +82,10 @@ In order to run the API Application
 
 ## Deployment
 
-The application is deployed on Heroku Server at
+The application is deployed on Heroku Server at and you can try it out.
 
->
+>https://mealbooking-api.herokuapp.com/api/v1/#!/default
+
+## License
+
+The project is licensed under MIT License.

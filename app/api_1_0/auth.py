@@ -4,7 +4,7 @@ from .decorators import authenticate
 from .import api
 from .common import str_type
 
-login_modal = api.model('login', {'username': fields.String('Username.'),
+login_modal = api.model('login', {'email': fields.String('Email.'),
                                   'password': fields.String('Password')})
 
 register_modal = api.model('register',
@@ -44,10 +44,7 @@ class Register(Resource):
         user = User(name=name, email=email)
         user.password = password
         user.save()
-        return {
-            'user': user.to_dict(),
-            'token': user.generate_jwt_token()
-        }, 201
+        return user.to_dict(), 201
 
 
 signup_business = api.model('business_signup', {
@@ -88,7 +85,6 @@ class RegisterBusiness(Resource):
 
         return {
             'user': user.to_dict(),
-            'token': user.generate_jwt_token(),
             'business': catering.to_dict()
         }, 201
 
@@ -97,16 +93,16 @@ class Login(Resource):
     @api.expect(login_modal)
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str_type, required=True,
-                            help='Username field is required')
+        parser.add_argument('email', type=str_type, required=True,
+                            help='Email field is required')
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
 
-        username = args['username']
+        email = args['email']
         password = args['password']
 
-        user = User.get_by_email(username)
+        user = User.get_by_email(email)
         if user is not None and user.verify_password(password):
             # login in user
             token = user.generate_jwt_token()

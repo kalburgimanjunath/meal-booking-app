@@ -12,6 +12,7 @@ order_model = api.model('order', {
 
 class OrderResource(Resource):
     @authenticate
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self, orderId):
         order = Order.get_by_id(orderId)
         if not order:
@@ -25,6 +26,7 @@ class OrderResource(Resource):
 
     @authenticate
     @api.expect(order_model)
+    @api.header('Authorization', type=str, description='Authentication token')
     def put(self, orderId):
         order = Order.get_by_id(orderId)
         if not order:
@@ -39,7 +41,7 @@ class OrderResource(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument(
-            'meals', help='Meals list is required', action='append')
+            'meals', help='Meals id list is required', action='append')
         args = parser.parse_args()
         expires_at = datetime.datetime.now(
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
@@ -61,6 +63,7 @@ class OrderResource(Resource):
 class OrdersResource(Resource):
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
             'orders': [order.to_dict() for order in data.orders]
@@ -68,6 +71,7 @@ class OrdersResource(Resource):
 
     @authenticate
     @api.expect(order_model)
+    @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument(

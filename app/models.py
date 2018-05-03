@@ -144,7 +144,7 @@ class Menu:
             'title': self.title,
             'description': self.description,
             'meals': [meal.to_dict() for meal in self.meals],
-            'menuDate': self.menu_date
+            'menu_date': self.menu_date
         }
 
 

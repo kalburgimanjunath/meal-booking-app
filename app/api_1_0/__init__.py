@@ -15,10 +15,10 @@ admin_user.is_admin = True
 admin_user.save()
 
 # create a test meal
-meal = MealOption('lorem meal', 10000)
+meal = MealOption('lorem meal', 10000, description='lorem ipsum desc')
 meal.save()
 
-meal = MealOption('Beef with rice', 1500)
+meal = MealOption('Beef with rice', 1500, description='lorem desc ipsum')
 meal.save()
 
 api_bp = Blueprint('api', __name__)

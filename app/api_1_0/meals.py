@@ -15,14 +15,17 @@ class MealsResource(Resource):
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         return {
-            'meals': [meal.to_dict() for meal in data.meals]
+            'meals': [meal.to_dict() for meal in data.meals],
+            'status': 'success'
         }, 200
 
     @authenticate
     @admin_required
     @api.expect(meal_modal)
+    @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
@@ -38,28 +41,28 @@ class MealsResource(Resource):
         meal = MealOption(title=title, price=price, description=description)
         meal.save()
 
-        return {
-            'meal': meal.to_dict()
-        }, 201
+        return meal.to_dict(), 201
 
 
 class MealResource(Resource):
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
             return {
                 'error': 'Bad request, no meal with such id exists'
             }, 400
-        return {
-            'meal': meal.to_dict()
-        }, 200
+        return meal.to_dict(), 200
 
     @authenticate
     @admin_required
     @api.expect(meal_modal)
+    @api.doc(responses={200: 'Success', 400: 'Bad request',
+                        401: 'Authorization failed'})
+    @api.header('Authorization', type=str, description='Authentication token')
     def put(self, mealId):
         meal = MealOption.get_by_id(mealId)
         if not meal:
@@ -78,12 +81,11 @@ class MealResource(Resource):
         meal.price = args['price']
         meal.description = args['description']
 
-        return {
-            'meal': meal.to_dict()
-        }, 200
+        return meal.to_dict(), 200
 
     @authenticate
     @admin_required
+    @api.header('Authorization', type=str, description='Authentication token')
     def delete(self, mealId):
         for meal in data.meals:
             if meal.id == mealId:
