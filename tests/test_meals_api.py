@@ -1,5 +1,5 @@
 import unittest
-from tests import ApiTestCase
+from tests.base_test_case import ApiTestCase
 from app.models import User
 
 

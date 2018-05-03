@@ -1,7 +1,7 @@
 import flask
 from app.models import User, Menu, MealOption, Catering, Order
 import unittest
-from tests import ApiTestCase
+from tests.base_test_case import ApiTestCase
 
 
 class UserModelTestCase(ApiTestCase):
