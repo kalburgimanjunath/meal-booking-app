@@ -6,7 +6,7 @@ from .common import str_type
 from . import api
 
 menu_model = api.model('Menu', {
-    'date': fields.String('date'),
+    'date': fields.String('date of format yyyy-mm-dd'),
     'title': fields.String('Title'),
     'description': fields.String('Description(Optional)'),
     'meals': fields.String('List of meals')
