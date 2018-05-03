@@ -52,7 +52,7 @@ class TestMenusApiTestCase(ApiTestCase):
     def test_admin_can_set_menu(self):
         token = self.login_admin()
         menu = {
-            "menuDate": "2018-04-26",
+            "date": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id for meal in data.meals]

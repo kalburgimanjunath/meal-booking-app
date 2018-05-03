@@ -41,7 +41,7 @@ class OrderResource(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument(
-            'meals', help='Meals list is required', action='append')
+            'meals', help='Meals id list is required', action='append')
         args = parser.parse_args()
         expires_at = datetime.datetime.now(
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])

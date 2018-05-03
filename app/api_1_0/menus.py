@@ -6,7 +6,7 @@ from .common import str_type
 from . import api
 
 menu_model = api.model('Menu', {
-    'menuDate': fields.String('Menu date'),
+    'date': fields.String('date'),
     'title': fields.String('Title'),
     'description': fields.String('Description(Optional)'),
     'meals': fields.String('List of meals')
@@ -42,7 +42,7 @@ class MenuResource(Resource):
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('menuDate', type=str_type,
+        parser.add_argument('date', type=str_type,
                             required=True, help='Date field is required')
         parser.add_argument('title', type=str_type, required=True,
                             help='Title field is required')
@@ -52,7 +52,7 @@ class MenuResource(Resource):
         args = parser.parse_args()
 
         menu = Menu(title=args['title'], description=args['description'])
-        menu.menu_date = args['menuDate']
+        menu.menu_date = args['date']
         for meal_id in args['meals']:
             meal = MealOption.get_by_id(int(meal_id))
             if meal:
