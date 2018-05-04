@@ -5,6 +5,8 @@ This module contains models of entities showing how they relate to each other
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+from flask import current_app
 
 
 class data:
@@ -138,13 +140,19 @@ class Menu:
             self.id = data.menus[-1].id + 1
         data.menus.append(self)
 
+    def add_meals(self, meals):
+        for meal_id in meals:
+            meal = MealOption.get_by_id(int(meal_id))
+        if meal:
+            self.meals.append(meal)
+
     def to_dict(self):
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
             'meals': [meal.to_dict() for meal in self.meals],
-            'menu_date': self.menu_date
+            'menu_date': str(self.menu_date)
         }
 
 
@@ -194,7 +202,8 @@ class Order:
         self.total_cost = 0
         self.user = User(None, None)
         self.catering = None
-        self.expires_at = None
+        self.expires_at = datetime.datetime.now(
+        ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
 
     def save(self):
         if not data.orders:
@@ -215,6 +224,5 @@ class Order:
             'id': self.id,
             'cost': self.total_cost,
             'expiresAt': str(self.expires_at),
-            'meals': [meal.to_dict() for meal in self.meals],
-            'customer': self.user.to_dict()
+            'meals': [meal.to_dict() for meal in self.meals]
         }

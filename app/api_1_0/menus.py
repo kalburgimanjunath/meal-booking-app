@@ -2,14 +2,16 @@ from flask_restplus import Resource, reqparse, fields
 from ..models import Menu, data, MealOption
 from .decorators import authenticate, admin_required
 from datetime import datetime
-from .common import str_type
+from .common import str_type, validate_date, validate_meals_list
 from . import api
+from dateutil import parser as date_parser
+from flask import request
 
 menu_model = api.model('Menu', {
-    'date': fields.String('date of format yyyy-mm-dd'),
+    'date': fields.String('yyyy-mm-dd'),
     'title': fields.String('Title'),
-    'description': fields.String('Description(Optional)'),
-    'meals': fields.String('List of meals')
+    'description': fields.String('Optional)'),
+    'meals': fields.String('[]')
 })
 
 
@@ -30,7 +32,7 @@ class MenuResource(Resource):
     def get(self):
         current_date = datetime.now().date()
         for menu in data.menus:
-            if menu.menu_date == str(current_date):
+            if menu.menu_date == current_date:
                 return menu.to_dict(), 200
         return {
             'message': 'menu not yet set.'
@@ -47,15 +49,22 @@ class MenuResource(Resource):
         parser.add_argument('title', type=str_type, required=True,
                             help='Title field is required')
         parser.add_argument('description', type=str)
-        parser.add_argument(
-            'meals', help='Meals list is required', action='append')
         args = parser.parse_args()
+        meals = request.json.get('meals', '')
+        val = validate_meals_list(meals)
+        if val:
+            return val, 400
 
-        menu = Menu(title=args['title'], description=args['description'])
-        menu.menu_date = args['date']
-        for meal_id in args['meals']:
-            meal = MealOption.get_by_id(int(meal_id))
-            if meal:
-                menu.meals.append(meal)
+        # validate date
+        if not validate_date(args['date']):
+            return {
+                'errors': {
+                    'date': 'Incorrect date format, should be YYYY-MM-DD'
+                }
+            }, 400
+        menu = Menu(title=args['title'], description=args['description'],)
+        m_date = date_parser.parse(args['date'])
+        menu.menu_date = m_date.date()
+        menu.add_meals(meals)
         menu.save()
         return menu.to_dict(), 201
