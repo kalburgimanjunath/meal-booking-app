@@ -1,6 +1,6 @@
 import unittest
 from app import create_application
-from app.models import User
+from app.models import User, MealOption
 import json
 
 
@@ -75,6 +75,20 @@ class ApiTestCase(unittest.TestCase):
 
         self.assertIsNotNone(token)  # verify that we have the token
         return token
+
+    def add_mock_meals(self):
+        meal = MealOption('lorem meal', 10000,
+                          description='lorem ipsum desc')
+        meal.save()
+        meal = MealOption('Beef with rice', 1500,
+                          description='lorem desc ipsum')
+        meal.save()
+
+    def add_test_meal(self):
+        meal = MealOption('Beef with rice', 1500,
+                          description='lorem desc ipsum')
+        meal.save()
+        return meal.id
 
     def tearDown(self):
         self.app_context.pop()

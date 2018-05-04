@@ -2,6 +2,8 @@ import unittest
 from tests.base_test_case import ApiTestCase
 from app.models import data, Order
 import datetime
+import json
+from flask import current_app
 
 
 class TestOrdersApiTestCase(ApiTestCase):
@@ -30,9 +32,10 @@ class TestOrdersApiTestCase(ApiTestCase):
         res = self.client().post(
             self.orders_endpoint,
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={'meals': meals}
+            data=json.dumps({'meals': meals})
         )
         self.assertEqual(res.status_code, 201)
 
@@ -42,10 +45,12 @@ class TestOrdersApiTestCase(ApiTestCase):
         res = self.client().put(
             self.orders_endpoint + '/100',
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={'meals': meals}
+            data=json.dumps({'meals': meals})
         )
+
         self.assertEqual(res.status_code, 400)
 
     def test_user_can_modify_order(self):
@@ -61,28 +66,35 @@ class TestOrdersApiTestCase(ApiTestCase):
         res = self.client().put(
             self.orders_endpoint + '/{}'.format(order.id),
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={'meals': meals}
+            data=json.dumps({'meals': meals})
         )
+
         self.assertEqual(res.status_code, 200)
 
     def test_user_cannot_modify_expired_order(self):
         token = self.login_test_user()
-        meals = [meal.id for meal in data.meals]
+        # create a test meal
 
+        self.add_mock_meals()
+
+        meals = [meal.id for meal in data.meals]
         # create an order
         order = Order()
         order.total_cost = 10000
         order.meals = data.meals
+        order.expires_at = datetime.datetime.now(
+        ) - datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
         order.save()
-        order.expires_at = datetime.datetime.now()
 
         res = self.client().put(
             self.orders_endpoint + '/{}'.format(order.id),
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={'meals': meals}
+            data=json.dumps({'meals': meals})
         )
         self.assertEqual(res.status_code, 400)
