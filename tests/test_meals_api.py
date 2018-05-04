@@ -1,5 +1,5 @@
 import unittest
-from tests import ApiTestCase
+from tests.base_test_case import ApiTestCase
 from app.models import User
 
 
@@ -54,10 +54,12 @@ class TestMealsApiTestCase(ApiTestCase):
                 'description': 'lorem ispunm'
             }
         )
+
         self.assertEqual(res.status_code, 201)
 
     def test_admin_can_edit_meal(self):
         token = self.login_admin()
+        self.add_mock_meals()
         res = self.client().put(
             self.meals_endpoint + '/1',
             headers={
@@ -74,6 +76,7 @@ class TestMealsApiTestCase(ApiTestCase):
 
     def test_admin_can_delete_meal(self):
         token = self.login_admin()
+        self.add_mock_meals()
         res = self.client().delete(
             self.meals_endpoint + '/2',
             headers={
@@ -95,7 +98,7 @@ class TestMealsApiTestCase(ApiTestCase):
     def test_admin_cannot_delete_that_doesnot_exist(self):
         token = self.login_admin()
         res = self.client().delete(
-            self.meals_endpoint + '/4',
+            self.meals_endpoint + '/200',
             headers={
                 'Authorization': token
             }
@@ -105,7 +108,7 @@ class TestMealsApiTestCase(ApiTestCase):
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
         token = self.login_admin()
         res = self.client().put(
-            self.meals_endpoint + '/4',
+            self.meals_endpoint + '/200',
             headers={
                 'Authorization': token
             },

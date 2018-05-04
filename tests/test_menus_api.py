@@ -1,6 +1,7 @@
 import unittest
-from tests import ApiTestCase
+from tests.base_test_case import ApiTestCase
 from app.models import User, data
+import json
 
 
 class TestMenusApiTestCase(ApiTestCase):
@@ -24,33 +25,7 @@ class TestMenusApiTestCase(ApiTestCase):
 
     def test_authenticated_user_cannot_set_menu(self):
         token = self.login_test_user()
-        menu = {
-            "menuDate": "2018-04-26",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": [meal.id for meal in data.meals]
-        }
-        res = self.client().post(
-            self.menu_endpoint,
-            headers={
-                'Authorization': token
-            },
-            data=menu
-        )
-        self.assertEqual(res.status_code, 403)
-
-    def test_unauthenticated_admin_cannot_set_menu(self):
-        menu = {
-            "menuDate": "2018-04-26",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": [meal.id for meal in data.meals]
-        }
-        res = self.client().post(self.menu_endpoint, data=menu)
-        self.assertEqual(res.status_code, 401)
-
-    def test_admin_can_set_menu(self):
-        token = self.login_admin()
+        self.add_mock_meals()
         menu = {
             "date": "2018-04-26",
             "title": "Buffet ipsum",
@@ -60,8 +35,40 @@ class TestMenusApiTestCase(ApiTestCase):
         res = self.client().post(
             self.menu_endpoint,
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data=menu
+            data=json.dumps(menu)
         )
+        self.assertEqual(res.status_code, 403)
+
+    def test_unauthenticated_admin_cannot_set_menu(self):
+        self.add_mock_meals()
+        menu = {
+            "date": "2018-04-26",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id for meal in data.meals]
+        }
+        res = self.client().post(self.menu_endpoint, data=json.dumps(menu))
+        self.assertEqual(res.status_code, 401)
+
+    def test_admin_can_set_menu(self):
+        token = self.login_admin()
+        self.add_mock_meals()
+        menu = {
+            "date": "2018-04-26",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id for meal in data.meals]
+        }
+        res = self.client().post(
+            self.menu_endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(menu)
+        )
+
         self.assertEqual(res.status_code, 201)
