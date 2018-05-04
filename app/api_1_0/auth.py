@@ -2,7 +2,7 @@ from flask_restplus import Resource, reqparse, fields
 from ..models import User, Catering
 from .decorators import authenticate
 from .import api
-from .common import str_type
+from .common import str_type, validate_email_type
 
 login_modal = api.model('login', {'email': fields.String('Email.'),
                                   'password': fields.String('Password')})
@@ -19,6 +19,9 @@ def email_type(value):
         raise ValueError("Email must be a string")
     if not value or len(value.strip(' ')) == 0:
         raise ValueError("Email field is required")
+    is_valid = validate_email_type(value)
+    if not is_valid:
+        raise ValueError('Email is not valid')
     user = User.get_by_email(value)
     if user is not None:
         raise ValueError("Email already in use")
