@@ -109,7 +109,7 @@ class Catering:
         if not data.caterings:
             self.id = 1
         else:
-            self.id = data.caterings[-1] + 1
+            self.id = data.caterings[-1].id + 1
         data.caterings.append(self)
 
     def to_dict(self):

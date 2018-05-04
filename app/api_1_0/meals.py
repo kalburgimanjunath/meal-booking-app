@@ -1,7 +1,7 @@
 from flask_restplus import Resource, reqparse, fields
 from ..models import Catering, MealOption, data
 from .decorators import authenticate, admin_required
-from .common import str_type
+from .common import str_type, price_type
 from . import api
 
 meal_modal = api.model('Meal', {
@@ -30,8 +30,7 @@ class MealsResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
                             required=True, help='Title field is required')
-        parser.add_argument('price', type=float, required=True,
-                            help='Price field is required')
+        parser.add_argument('price', type=price_type, required=True)
         parser.add_argument('description', type=str)
 
         args = parser.parse_args()
@@ -72,8 +71,7 @@ class MealResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
                             required=True, help='Title field is required')
-        parser.add_argument('price', type=float, required=True,
-                            help='Price field is required')
+        parser.add_argument('price', type=price_type, required=True)
         parser.add_argument('description', type=str)
         args = parser.parse_args()
 

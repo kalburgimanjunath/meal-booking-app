@@ -14,6 +14,14 @@ def str_type(value):
     return value
 
 
+def price_type(value):
+    if not isinstance(value, int):
+        raise ValueError("Price value must be a integer")
+    if not value:
+        raise ValueError("Price cannot be empty")
+    return value
+
+
 def validate_email_type(value):
     result = validators.email(value)
     if result:
