@@ -55,7 +55,8 @@ class TestOrdersApiTestCase(ApiTestCase):
 
     def test_user_can_modify_order(self):
         token = self.login_test_user()
-        meals = [meal.id for meal in data.meals]
+        self.add_mock_meals()
+        meals = [1]
 
         # create an order
         order = Order()
@@ -73,6 +74,8 @@ class TestOrdersApiTestCase(ApiTestCase):
         )
 
         self.assertEqual(res.status_code, 200)
+        res_data = self.get_response_data(res)
+        self.assertEqual(order.id, res_data['order']['id'])
 
     def test_user_cannot_modify_expired_order(self):
         token = self.login_test_user()
@@ -98,3 +101,38 @@ class TestOrdersApiTestCase(ApiTestCase):
             data=json.dumps({'meals': meals})
         )
         self.assertEqual(res.status_code, 400)
+        res_data = self.get_response_data(res)
+        self.assertIn('error', res_data)
+
+    def test_user_cannot_make_order_non_existent_meals(self):
+        token = self.login_test_user()
+        # create a test meal
+        meals = [100, 300]
+
+        res = self.client().post(
+            self.orders_endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps({'meals': meals})
+        )
+        self.assertEqual(res.status_code, 400)
+        res_data = self.get_response_data(res)
+        self.assertIn('errors', res_data)
+
+    def test_user_cannot_make_order_without_meals(self):
+        token = self.login_test_user()
+        meals = []
+
+        res = self.client().post(
+            self.orders_endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps({'meals': meals})
+        )
+        self.assertEqual(res.status_code, 400)
+        res_data = self.get_response_data(res)
+        self.assertIn('errors', res_data)
