@@ -11,6 +11,9 @@ class TestMealsApiTestCase(ApiTestCase):
     def test_unauthenticated_admin_cannot_access_meals(self):
         res = self.client().get(self.meals_endpoint)
         self.assertEqual(res.status_code, 401)
+        data = self.get_response_data(res)
+        self.assertEqual(
+            'No Bearer token in Authorisation header', data['error'])
 
     def test_only_admin_can_access_meals(self):
         # use test user
@@ -18,6 +21,8 @@ class TestMealsApiTestCase(ApiTestCase):
         res = self.client().get(self.meals_endpoint, headers={
             'Authorization': token})
         self.assertEqual(res.status_code, 403)
+        data = self.get_response_data(res)
+        self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_can_access_meals(self):
         token = self.login_admin()
@@ -25,6 +30,8 @@ class TestMealsApiTestCase(ApiTestCase):
         res = self.client().get(self.meals_endpoint, headers={
             'Authorization': token})
         self.assertEqual(res.status_code, 200)
+        data = self.get_response_data(res)
+        self.assertIn('meals', data)
 
     def test_customer_cannot_post_meals(self):
         token = self.login_test_user()
@@ -40,6 +47,8 @@ class TestMealsApiTestCase(ApiTestCase):
             }
         )
         self.assertEqual(res.status_code, 403)
+        data = self.get_response_data(res)
+        self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_can_post_meal(self):
         token = self.login_admin()
@@ -56,6 +65,8 @@ class TestMealsApiTestCase(ApiTestCase):
         )
 
         self.assertEqual(res.status_code, 201)
+        data = self.get_response_data(res)
+        self.assertIn('id', data)
 
     def test_admin_can_edit_meal(self):
         token = self.login_admin()
@@ -71,8 +82,9 @@ class TestMealsApiTestCase(ApiTestCase):
                 'description': 'lorem ispum'
             }
         )
-
         self.assertEqual(res.status_code, 200)
+        data = self.get_response_data(res)
+        self.assertEqual(1, data['id'])
 
     def test_admin_can_delete_meal(self):
         token = self.login_admin()
@@ -84,6 +96,8 @@ class TestMealsApiTestCase(ApiTestCase):
             }
         )
         self.assertEqual(res.status_code, 200)
+        data = self.get_response_data(res)
+        self.assertIn('message', data)
 
     def test_customer_cannot_delete_meal(self):
         token = self.login_test_user()
@@ -94,6 +108,8 @@ class TestMealsApiTestCase(ApiTestCase):
             }
         )
         self.assertEqual(res.status_code, 403)
+        data = self.get_response_data(res)
+        self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_cannot_delete_that_doesnot_exist(self):
         token = self.login_admin()
@@ -104,6 +120,8 @@ class TestMealsApiTestCase(ApiTestCase):
             }
         )
         self.assertEqual(res.status_code, 400)
+        data = self.get_response_data(res)
+        self.assertIn('error', data)
 
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
         token = self.login_admin()
@@ -120,3 +138,5 @@ class TestMealsApiTestCase(ApiTestCase):
         )
 
         self.assertEqual(res.status_code, 400)
+        data = self.get_response_data(res)
+        self.assertIn('error', data)

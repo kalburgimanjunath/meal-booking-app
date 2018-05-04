@@ -90,5 +90,9 @@ class ApiTestCase(unittest.TestCase):
         meal.save()
         return meal.id
 
+    def get_response_data(self, response):
+        json_response = json.loads(response.get_data(as_text=True))
+        return json_response
+
     def tearDown(self):
         self.app_context.pop()
