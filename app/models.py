@@ -1,7 +1,7 @@
 """
 This module contains models of entities showing how they relate to each other
 """
-
+import datetime
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -211,6 +211,11 @@ class Order(db.Model):
                             backref=db.backref('order', lazy=True))
     expires_at = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def __init__(self, **kwargs):
+        super(Order, self).__init__(**kwargs)
+        self.expires_at = datetime.datetime.now(
+        ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
 
     def to_dict(self):
         """

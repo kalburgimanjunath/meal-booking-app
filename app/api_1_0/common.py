@@ -1,9 +1,9 @@
 """
 Module to store common functions
 """
-import validators
 import datetime
-from ..models import MealOption
+import validators
+from ..models import Meal
 
 
 def str_type(value):
@@ -57,7 +57,7 @@ def validate_meals_list(meals):
 
     for meal_id in meals:
         try:
-            meal = MealOption.get_by_id(int(meal_id))
+            meal = Meal.query.filter_by(id=int(meal_id)).first()
             if not meal:
                 return {
                     'errors': {

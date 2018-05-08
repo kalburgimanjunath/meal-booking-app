@@ -24,13 +24,12 @@ def authenticate(func):
     return wrapper
 
 
-def admin_required(f):
-    @wraps(f)
+def admin_required(func):
+    @wraps(func)
     def decorated_function(*args, **kwargs):
-        # TODO: change this in upcoming challenges
-        if not g.current_user.is_admin:
+        if not g.current_user.is_administrator():
             return {
                 'error': '403 forbidden access is denied'
             }, 403
-        return f(*args, **kwargs)
+        return func(*args, **kwargs)
     return decorated_function

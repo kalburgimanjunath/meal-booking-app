@@ -1,11 +1,12 @@
 from flask_restplus import Resource, reqparse, fields
-from ..models import Menu, data, MealOption
 from .decorators import authenticate, admin_required
 from datetime import datetime
 from .common import str_type, validate_date, validate_meals_list
 from . import api
 from dateutil import parser as date_parser
-from flask import request
+from flask import request, g
+from ..models import Menu, Meal
+from .. import db
 
 menu_model = api.model('Menu', {
     'date': fields.String('yyyy-mm-dd'),
@@ -20,20 +21,30 @@ class MenusResource(Resource):
     @admin_required
     @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
+        """
+        Allows a business to retrieve all menus
+        """
+        user = g.current_user
         return {
-            'menus': [menu.to_dict() for menu in data.menus],
+            'menus': [menu.to_dict() for menu in user.catering.menus],
             'status': 'success'
         }, 200
 
 
 class MenuResource(Resource):
+    """
+     Exposes a menu as a resource
+    """
     @authenticate
     @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
+        """
+        Allows a customer to get a specific day menu
+        """
         current_date = datetime.now().date()
-        for menu in data.menus:
-            if menu.menu_date == current_date:
-                return menu.to_dict(), 200
+        menu = Menu.query.filter_by(date=current_date).first()
+        if menu:
+            return menu.to_dict(), 200
         return {
             'message': 'menu not yet set.'
         }, 200
@@ -43,6 +54,9 @@ class MenuResource(Resource):
     @api.expect(menu_model)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
+        """
+        Allows a business create a specific day menu
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('date', type=str_type,
                             required=True, help='Date field is required')
@@ -62,9 +76,23 @@ class MenuResource(Resource):
                     'date': 'Incorrect date format, should be YYYY-MM-DD'
                 }
             }, 400
-        menu = Menu(title=args['title'], description=args['description'],)
-        m_date = date_parser.parse(args['date'])
-        menu.menu_date = m_date.date()
-        menu.add_meals(meals)
-        menu.save()
+        user = g.current_user
+        menu_date = date_parser.parse(args['date'])
+        menu = Menu.query.filter_by(
+            catering=user.catering).filter_by(date=menu_date).first()
+        if menu:
+            return {
+                'errors': {
+                    'date': 'Menu for the specific date {} already set'.format(
+                        args['date'])
+                }
+            }, 400
+
+        menu = Menu(title=args['title'], description=args['description'],
+                    date=menu_date, catering=user.catering)
+        for meal_id in meals:
+            meal = Meal.query.get(meal_id)
+            menu.meals.append(meal)
+        db.session.add(menu)
+        db.session.commit()
         return menu.to_dict(), 201
