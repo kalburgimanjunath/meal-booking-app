@@ -1,9 +1,8 @@
 from flask_restplus import Resource, reqparse, fields
-from ..models import User, Catering
-from .decorators import authenticate
+from ..models import User, Catering, Role
 from .import api
 from .common import str_type, validate_email_type
-
+from .. import db
 login_modal = api.model('login', {'email': fields.String('Email.'),
                                   'password': fields.String('Password')})
 
@@ -22,7 +21,7 @@ def email_type(value):
     is_valid = validate_email_type(value)
     if not is_valid:
         raise ValueError('Email is not valid')
-    user = User.get_by_email(value)
+    user = User.query.filter_by(email=value).first()
     if user is not None:
         raise ValueError("Email already in use")
     return value
@@ -31,6 +30,9 @@ def email_type(value):
 class Register(Resource):
     @api.expect(register_modal)
     def post(self):
+        """
+        Signs up a new customer
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str_type, required=True,
                             help='Name field is required')
@@ -44,9 +46,9 @@ class Register(Resource):
         password = args['password']
 
         # create user and return the created user
-        user = User(name=name, email=email)
-        user.password = password
-        user.save()
+        user = User(name=name, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
         return user.to_dict(), 201
 
 
@@ -62,6 +64,9 @@ signup_business = api.model('business_signup', {
 class RegisterBusiness(Resource):
     @api.expect(signup_business)
     def post(self):
+        """
+        Signs up a new business
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('businessAddress', type=str_type,
                             help='Business Address field is required')
@@ -74,17 +79,18 @@ class RegisterBusiness(Resource):
                             help='Password field is required')
         args = parser.parse_args()
         password = args['password']
-
+        role = Role.query.filter_by(name='Admin').first()
         # create user and return the created user
-        user = User(name=args['name'], email=args['email'])
-        user.password = password
-        user.is_admin = True
-        user.save()
+        user = User(name=args['name'], email=args['email'],
+                    password=password, role=role)
+        db.session.add(user)
+        db.session.commit()
 
         catering = Catering(name=args['businessName'],
                             address=args['businessAddress'])
         catering.admin = user
-        catering.save()
+        db.session.add(catering)
+        db.session.commit()
 
         return {
             'user': user.to_dict(),
@@ -93,8 +99,14 @@ class RegisterBusiness(Resource):
 
 
 class Login(Resource):
+    """
+    Class Login exposes login functionality in form of a resource
+    """
     @api.expect(login_modal)
     def post(self):
+        """
+         Post handles post requests for logging in a user
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str_type, required=True,
                             help='Email field is required')
@@ -105,7 +117,7 @@ class Login(Resource):
         email = args['email']
         password = args['password']
 
-        user = User.get_by_email(email)
+        user = User.query.filter_by(email=email).first()
         if user is not None and user.verify_password(password):
             # login in user
             token = user.generate_jwt_token()
