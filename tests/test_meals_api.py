@@ -1,6 +1,6 @@
-import unittest
 from tests.base_test_case import ApiTestCase
-from app.models import User
+from app.models import Meal, User
+from app import db
 
 
 class TestMealsApiTestCase(ApiTestCase):
@@ -17,7 +17,7 @@ class TestMealsApiTestCase(ApiTestCase):
 
     def test_only_admin_can_access_meals(self):
         # use test user
-        token = self.login_test_user()
+        token = self.login_test_user('test@testapi.com')[0]
         res = self.client().get(self.meals_endpoint, headers={
             'Authorization': token})
         self.assertEqual(res.status_code, 403)
@@ -25,7 +25,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_can_access_meals(self):
-        token = self.login_admin()
+        token = self.login_admin('s@admin.com')[0]
 
         res = self.client().get(self.meals_endpoint, headers={
             'Authorization': token})
@@ -34,7 +34,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertIn('meals', data)
 
     def test_customer_cannot_post_meals(self):
-        token = self.login_test_user()
+        token = self.login_test_user('self@tesst.com')[0]
         res = self.client().post(
             self.meals_endpoint,
             headers={
@@ -51,7 +51,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_can_post_meal(self):
-        token = self.login_admin()
+        token = self.login_admin('self@admin.com')[0]
         res = self.client().post(
             self.meals_endpoint,
             headers={
@@ -63,14 +63,17 @@ class TestMealsApiTestCase(ApiTestCase):
                 'description': 'lorem ispunm'
             }
         )
-
-        self.assertEqual(res.status_code, 201)
         data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 201)
         self.assertIn('id', data)
 
     def test_admin_can_edit_meal(self):
-        token = self.login_admin()
-        self.add_mock_meals()
+        token, user = self.login_admin('adm@adm.com')
+
+        meal = Meal(title='lorem ipsum', price=2000,
+                    description='lorem ipsum', catering=user.catering)
+        db.session.add(meal)
+        db.session.commit()
         res = self.client().put(
             self.meals_endpoint + '/1',
             headers={
@@ -87,10 +90,15 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual(1, data['id'])
 
     def test_admin_can_delete_meal(self):
-        token = self.login_admin()
-        self.add_mock_meals()
+        token, user = self.login_admin('self@ad.com')
+
+        meal = Meal(title='lorem ipsum', price=2000,
+                    description='lorem ipsum', catering=user.catering)
+        db.session.add(meal)
+        db.session.commit()
+
         res = self.client().delete(
-            self.meals_endpoint + '/2',
+            self.meals_endpoint + '/{}'.format(meal.id),
             headers={
                 'Authorization': token
             }
@@ -100,7 +108,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertIn('message', data)
 
     def test_customer_cannot_delete_meal(self):
-        token = self.login_test_user()
+        token = self.login_test_user('test@self.com')[0]
         res = self.client().delete(
             self.meals_endpoint + '/2',
             headers={
@@ -112,7 +120,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual('403 forbidden access is denied', data['error'])
 
     def test_admin_cannot_delete_that_doesnot_exist(self):
-        token = self.login_admin()
+        token = self.login_admin('admin@a.com')[0]
         res = self.client().delete(
             self.meals_endpoint + '/200',
             headers={
@@ -124,9 +132,9 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertIn('error', data)
 
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
-        token = self.login_admin()
+        token = self.login_admin('admin@catering.com')[0]
         res = self.client().put(
-            self.meals_endpoint + '/200',
+            self.meals_endpoint + '/10000',
             headers={
                 'Authorization': token
             },
