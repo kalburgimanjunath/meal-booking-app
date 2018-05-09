@@ -73,7 +73,6 @@ class OrderResource(Resource):
         order.meals.clear()  # remove all items from the array
         for meal_id in meals:
             meal = Meal.query.get(int(meal_id))
-            print(meal)
             if meal:
                 total_cost += meal.price
                 order.meals.append(meal)
@@ -119,7 +118,7 @@ class OrdersResource(Resource):
             return {
                 'errors': 'no such catering exists with id {}'.format(
                     catering_id)
-            }
+            }, 400
         val = validate_meals_list(meals)
         if val:
             return val, 400
