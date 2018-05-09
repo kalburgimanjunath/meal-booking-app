@@ -108,7 +108,7 @@ class User(db.Model):
 
 class Catering(db.Model):
     """
-    Catering class represents Catering class
+    Catering class represents caterings table
     """
     __tablename__ = 'caterings'
     id = db.Column(db.Integer, primary_key=True)
