@@ -3,7 +3,6 @@ language: python
 python:
   - "3.6"
 env: 
- - - DATABASE_URL=postgresql://andela1:AnDELa@localhost/test_bookamealdb SECRET_KEY=QEWYEHNDWydsdwewj2i3 FLASK_CONFIG=testing
   global:
     - CC_TEST_REPORTER_ID=e728c805232105aa2e77968d53360977e2961efab1b9a91dd60b2dc43025dab2
   
