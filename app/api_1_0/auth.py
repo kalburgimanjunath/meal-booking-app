@@ -122,11 +122,10 @@ class Login(Resource):
             # login in user
             token = user.generate_jwt_token()
             return {
-                'token': token,
-                'user': user.to_dict()
+                'token': token
             }, 200
         return {
-            'message': {
+            'errors': {
                 'form': 'Wrong username or password'
             }
         }, 401

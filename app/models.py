@@ -91,7 +91,12 @@ class User(db.Model):
     def generate_jwt_token(self):
         s = Serializer(current_app.config['SECRET_KEY'],
                        expires_in=360000)
-        return s.dumps({'id': self.id}).decode('ascii')
+        return s.dumps({
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'isAdmin': self.is_administrator()
+        }).decode('ascii')
 
     @staticmethod
     def verify_jwt_token(token):
