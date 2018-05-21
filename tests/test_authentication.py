@@ -48,7 +48,7 @@ class AuthenticationTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 401)
         data = self.get_response_data(res)
         self.assertEqual('Wrong username or password',
-                         data['message']['form'])
+                         data['errors']['form'])
 
     def test_token_returned_on_authenticating(self):
         user = User(name='solo', email='solo1@yahoo.com', password='test')
