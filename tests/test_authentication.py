@@ -1,5 +1,6 @@
 from tests.base_test_case import ApiTestCase
 from app.models import User
+from app import db
 
 
 class AuthenticationTestCase(ApiTestCase):
@@ -30,9 +31,10 @@ class AuthenticationTestCase(ApiTestCase):
 
     def test_api_can_login_registered_user(self):
         # register user first
-        user = User(name='solo', email='solo@yahoo.com')
-        user.password = 'test'
-        user.save()
+        user = User(name='solo', email='solo@yahoo.com', password='test')
+        db.session.add(user)
+        db.session.commit()
+
         res = self.make_post_request(
             self.user_login_endpoint, {'email': 'solo@yahoo.com',
                                        'password': 'test'})
@@ -46,25 +48,30 @@ class AuthenticationTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 401)
         data = self.get_response_data(res)
         self.assertEqual('Wrong username or password',
-                         data['message']['form'])
+                         data['errors']['form'])
 
     def test_token_returned_on_authenticating(self):
-        user = User(name='solo', email='solo@yahoo.com')
-        user.password = 'test'
-        user.save()
+        user = User(name='solo', email='solo1@yahoo.com', password='test')
+        db.session.add(user)
+        db.session.commit()
         res = self.make_post_request(
-            self.user_login_endpoint, {'email': 'solo@yahoo.com',
+            self.user_login_endpoint, {'email': 'solo1@yahoo.com',
                                        'password': 'test'})
         self.assertEqual(res.status_code, 200)
         self.assertIn('token', str(res.data))
 
     def test_can_register_business(self):
         res = self.make_post_request(
-            self.business_register_endpoint, self.test_business_user)
-        self.assertEqual(res.status_code, 201)
+            self.business_register_endpoint, {
+                'email': 'biz@gmail.com',
+                'name': 'your biz',
+                'password': 'AwesomeBiz',
+                'businessAddress': 'Kampala',
+                'businessName': 'Cater1'
+            })
         data = self.get_response_data(res)
-        self.assertEqual(
-            self.test_business_user['email'], data['user']['email'])
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual('biz@gmail.com', data['user']['email'])
 
     def test_cannot_register_with_invalid_email(self):
         res = self.make_post_request(self.user_register_endpoint, data={

@@ -1,9 +1,9 @@
 """
 Module to store common functions
 """
-import validators
 import datetime
-from ..models import MealOption
+import validators
+from ..models import Meal
 
 
 def str_type(value):
@@ -11,6 +11,14 @@ def str_type(value):
         raise ValueError("Field value must be a string")
     if not value or len(value.strip(' ')) == 0:
         raise ValueError("This field cannot be empty")
+    return value
+
+
+def price_type(value):
+    if not isinstance(value, int):
+        raise ValueError("Price value must be a integer")
+    if not value:
+        raise ValueError("Price cannot be empty")
     return value
 
 
@@ -49,7 +57,7 @@ def validate_meals_list(meals):
 
     for meal_id in meals:
         try:
-            meal = MealOption.get_by_id(int(meal_id))
+            meal = Meal.query.filter_by(id=int(meal_id)).first()
             if not meal:
                 return {
                     'errors': {
