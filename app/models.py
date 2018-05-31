@@ -156,6 +156,7 @@ class Menu(db.Model):
     meals = db.relationship('Meal', secondary=menu_meals, lazy='subquery',
                             backref=db.backref('menu', lazy=True))
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
+    orders = db.relationship('Order', backref='menu', lazy='dynamic')
     created_at = db.Column(db.DateTime(), default=db.func.current_timestamp())
 
     def to_dict(self):
@@ -167,7 +168,11 @@ class Menu(db.Model):
             'title': self.title,
             'description': self.description,
             'meals': [meal.to_dict() for meal in self.meals],
-            'menuDate': str(self.date)
+            'menuDate': str(self.date),
+            'catering': {
+                'name': self.catering.name,
+                'address': self.catering.address
+            }
         }
 
 
@@ -212,6 +217,7 @@ class Order(db.Model):
     total_cost = db.Column(db.Float, nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
+    menu_id = db.Column(db.Integer, db.ForeignKey('menus.id'))
     meals = db.relationship('Meal', secondary=order_meals, lazy='subquery',
                             backref=db.backref('order', lazy=True))
     expires_at = db.Column(db.DateTime, nullable=False)
