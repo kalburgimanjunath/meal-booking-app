@@ -231,5 +231,6 @@ class Order(db.Model):
             'cost': self.total_cost,
             'expiresAt': str(self.expires_at),
             'meals': [meal.to_dict() for meal in self.meals],
-            'customer': self.customer.to_dict()
+            'customer': self.customer.to_dict(),
+            'createdAt': str(self.created_at)
         }
