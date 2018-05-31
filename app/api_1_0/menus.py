@@ -42,11 +42,12 @@ class MenuResource(Resource):
         Allows a customer to get a specific day menu
         """
         current_date = datetime.now().date()
-        menu = Menu.query.filter_by(date=current_date).first()
+        # return all current day menus
+        menu = Menu.query.filter_by(date=current_date).all()
         if menu:
             return menu.to_dict(), 200
         return {
-            'message': 'menu not yet set.'
+            'message': 'menus for {} not yet set.'.format(str(current_date))
         }, 200
 
     @authenticate
