@@ -30,6 +30,7 @@ class TestOrdersApiTestCase(ApiTestCase):
         # create a meal by the admin
         admin = self.login_admin('ordersadmin1@test.com')[1]
         meal = self.add_test_meal(admin)
+        menu_id = self.add_test_menu()
 
         res = self.client().post(
             self.orders_endpoint,
@@ -38,7 +39,8 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Content-Type': 'application/json'
             },
             data=json.dumps(
-                {'meals': [meal.id], 'cateringId': admin.catering.id})
+                {'meals': [meal.id], 'cateringId': admin.catering.id,
+                 'menuId': menu_id})
         )
         self.assertEqual(res.status_code, 201)
 
@@ -111,13 +113,17 @@ class TestOrdersApiTestCase(ApiTestCase):
         # create a test meal
         meals = [100, 300]
 
+        menu_id = self.add_test_menu()
+
         res = self.client().post(
             self.orders_endpoint,
             headers={
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps({'meals': meals, 'cateringId': admin.catering.id})
+            data=json.dumps(
+                {'meals': meals, 'cateringId': admin.catering.id,
+                 'menuId': menu_id})
         )
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
@@ -129,13 +135,16 @@ class TestOrdersApiTestCase(ApiTestCase):
         admin = self.login_admin('ordersadmin@test.com')[1]
         meals = []
 
+        menu_id = self.add_test_menu()
+
         res = self.client().post(
             self.orders_endpoint,
             headers={
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps({'meals': meals, 'cateringId': admin.catering.id})
+            data=json.dumps({'meals': meals, 'menuId': menu_id,
+                             'cateringId': admin.catering.id})
         )
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)

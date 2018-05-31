@@ -1,6 +1,6 @@
 from flask import g, current_app, request
 from flask_restplus import Resource, reqparse, fields
-from ..models import Order, Meal, Catering
+from ..models import Order, Meal, Catering, Menu
 from .decorators import authenticate, admin_required
 import datetime
 from . import api
@@ -9,7 +9,8 @@ from .. import db
 
 order_model = api.model('order', {
     'meals': fields.String('[]'),
-    'cateringId': fields.Integer('cateringId')
+    'cateringId': fields.Integer('cateringId'),
+    'menuId': fields.Integer('menuId')
 })
 
 modify_order_model = api.model('order', {
@@ -83,6 +84,14 @@ class OrderResource(Resource):
         }, 200
 
 
+def type_menu_id(value):
+    if not isinstance(value, int):
+        raise ValueError("Field value must be an integer")
+    menu = Menu.query.get(value)
+    if not menu:
+        raise ValueError("Menu with id {} does not exist".format(value))
+
+
 class OrdersResource(Resource):
     """
     Exposes an orders as resources
@@ -109,8 +118,11 @@ class OrdersResource(Resource):
         customer = g.current_user
         meals = request.json.get('meals', '')
         parser = reqparse.RequestParser()
+        parser.add_argument('menuId', type=type_menu_id,
+                            help='menu id is required', required=True)
         parser.add_argument(
-            'cateringId', type=int, help='catering id is required', required=True)
+            'cateringId', type=int, help='catering id is required',
+            required=True)
         args = parser.parse_args()
         catering_id = args['cateringId']
         catering = Catering.query.get(catering_id)

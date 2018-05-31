@@ -125,6 +125,26 @@ class ApiTestCase(unittest.TestCase):
         db.session.commit()
         return meal
 
+    def add_test_menu(self):
+        token, user = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(user)
+        menu = {
+            "date": "2018-04-26",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id]
+        }
+        res = self.client().post(
+            self.menu_endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(menu)
+        )
+        res_data = self.get_response_data(res)
+        return res_data['id']
+
     def get_response_data(self, response):
         """
         gets request response json data
