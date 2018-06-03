@@ -25,8 +25,10 @@ class MenusResource(Resource):
         Allows a business to retrieve all menus
         """
         user = g.current_user
+        menus = Menu.query.filter_by(catering=user.catering).order_by(
+            Menu.created_at.desc()).all()
         return {
-            'menus': [menu.to_dict() for menu in user.catering.menus],
+            'menus': [menu.to_dict() for menu in menus],
             'status': 'success'
         }, 200
 
@@ -35,7 +37,7 @@ class MenuResource(Resource):
     """
      Exposes a menu as a resource
     """
-    @authenticate
+    # @authenticate
     @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         """
@@ -43,11 +45,9 @@ class MenuResource(Resource):
         """
         current_date = datetime.now().date()
         # return all current day menus
-        menu = Menu.query.filter_by(date=current_date).all()
-        if menu:
-            return menu.to_dict(), 200
+        menus = Menu.query.filter_by(date=current_date).all()
         return {
-            'message': 'menus for {} not yet set.'.format(str(current_date))
+            'menus': [menu.to_dict() for menu in menus]
         }, 200
 
     @authenticate
@@ -97,3 +97,19 @@ class MenuResource(Resource):
         db.session.add(menu)
         db.session.commit()
         return menu.to_dict(), 201
+
+
+class SpecificMenuResource(Resource):
+    """
+     Returns a menu of a given id
+    """
+
+    def get(self, id):
+        """
+        Returns a menu with a specific id.
+        """
+        menu = Menu.query.get(id)
+        if menu:
+            return {
+                'menu': menu.to_dict()
+            }

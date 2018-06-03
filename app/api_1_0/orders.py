@@ -63,6 +63,7 @@ class OrderResource(Resource):
             }, 400
 
         meals = request.json.get('meals', '')
+        orderCount = request.json.get('orderCount', 1)
         val = validate_meals_list(meals)
         if val:
             return val, 400
@@ -78,7 +79,10 @@ class OrderResource(Resource):
                 total_cost += meal.price
                 order.meals.append(meal)
 
-        order.total_cost = total_cost
+        order.total_cost = total_cost * int(orderCount)
+        order.order_count = int(orderCount)
+        db.session.add(order)
+        db.session.commit()
         return {
             'order': order.to_dict()
         }, 200
@@ -90,6 +94,7 @@ def type_menu_id(value):
     menu = Menu.query.get(value)
     if not menu:
         raise ValueError("Menu with id {} does not exist".format(value))
+    return value
 
 
 class OrdersResource(Resource):
@@ -117,20 +122,14 @@ class OrdersResource(Resource):
         """
         customer = g.current_user
         meals = request.json.get('meals', '')
+        orderCount = request.json.get('orderCount', 1)
         parser = reqparse.RequestParser()
         parser.add_argument('menuId', type=type_menu_id,
                             help='menu id is required', required=True)
-        parser.add_argument(
-            'cateringId', type=int, help='catering id is required',
-            required=True)
         args = parser.parse_args()
-        catering_id = args['cateringId']
-        catering = Catering.query.get(catering_id)
-        if not catering:
-            return {
-                'errors': 'no such catering exists with id {}'.format(
-                    catering_id)
-            }, 400
+        menu = Menu.query.filter_by(id=args['menuId']).first()
+        print(menu.id)
+
         val = validate_meals_list(meals)
         if val:
             return val, 400
@@ -143,11 +142,29 @@ class OrdersResource(Resource):
             if meal:
                 total_cost += meal.price
                 order_meals.append(meal)
-
+        total_cost = total_cost * int(orderCount)
         order = Order(total_cost=total_cost, meals=order_meals,
-                      customer=customer, catering=catering)
+                      customer=customer, catering=menu.catering, menu=menu,
+                      order_count=int(orderCount))
         db.session.add(order)
         db.session.commit()
         return {
             'order': order.to_dict()
         }, 201
+
+
+class MyOrderResource(Resource):
+    """
+    Resource exposes a customer's orders
+    """
+    @authenticate
+    def get(self):
+        """
+        Allows a customer to get thier previous orders
+        """
+        customer = g.current_user
+        orders = Order.query.filter_by(customer=customer).order_by(
+            Order.created_at.desc()).all()
+        return {
+            'orders': [order.to_dict() for order in orders]
+        }

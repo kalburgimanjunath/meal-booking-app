@@ -8,11 +8,11 @@ class TestMenusApiTestCase(ApiTestCase):
     Tests for menus api endpoints
     """
 
-    def test_unauthenticated_user_cannot_access_menu(self):
-        res = self.client().get(self.menu_endpoint)
-        self.assertEqual(res.status_code, 401)
-        res_data = self.get_response_data(res)
-        self.assertIn('error', res_data)
+    # def test_unauthenticated_user_cannot_access_menu(self):
+    #     res = self.client().get(self.menu_endpoint)
+    #     self.assertEqual(res.status_code, 401)
+    #     res_data = self.get_response_data(res)
+    #     self.assertIn('error', res_data)
 
     def test_authenticated_user_can_access_menu(self):
         token = self.login_test_user('test_menu@test.com')[0]

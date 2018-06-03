@@ -62,10 +62,11 @@ class TestOrdersApiTestCase(ApiTestCase):
         admin = self.login_admin('ordersadmin4@test.com')[1]
         meal = self.add_test_meal(admin)
         meals = [meal]
+        menu_id = self.add_test_menu()
 
         # create a test order to modify later
         order = Order(total_cost=1000, catering=admin.catering,
-                      customer=user, meals=meals)
+                      customer=user, meals=meals, menu_id=menu_id)
         db.session.add(order)
         db.session.commit()
 
@@ -75,7 +76,7 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps({'meals': [meal.id]})
+            data=json.dumps({'meals': [meal.id], 'orderCount': 2})
         )
         self.assertEqual(res.status_code, 200)
         res_data = self.get_response_data(res)
