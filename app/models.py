@@ -170,6 +170,7 @@ class Menu(db.Model):
             'meals': [meal.to_dict() for meal in self.meals],
             'menuDate': str(self.date),
             'catering': {
+                'id': self.id,
                 'name': self.catering.name,
                 'address': self.catering.address
             }
@@ -215,6 +216,7 @@ class Order(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
     total_cost = db.Column(db.Float, nullable=False)
+    order_count = db.Column(db.Integer, default=1)
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
     menu_id = db.Column(db.Integer, db.ForeignKey('menus.id'))
@@ -235,8 +237,11 @@ class Order(db.Model):
         return {
             'id': self.id,
             'cost': self.total_cost,
+            'totalCost': self.total_cost / self.order_count,
             'expiresAt': str(self.expires_at),
             'meals': [meal.to_dict() for meal in self.meals],
             'customer': self.customer.to_dict(),
-            'createdAt': str(self.created_at)
+            'createdAt': str(self.created_at),
+            'orderCount': self.order_count,
+            'menuId': self.menu.id
         }
