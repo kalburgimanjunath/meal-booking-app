@@ -1,13 +1,23 @@
+"""
+This module contains tests for testing orders.
+"""
 import datetime
 import json
-from tests.base_test_case import ApiTestCase
-from app.models import Order, Meal
 from flask import current_app
+from tests.base_test_case import ApiTestCase
+from app.models import Order
 from app import db
 
 
 class TestOrdersApiTestCase(ApiTestCase):
+    """
+     TestOrdersApiTestCase tests the orders api
+    """
+
     def test_only_admin_can_get_orders(self):
+        """
+        Test only an admin can order a meal
+        """
         token = self.login_test_user('testorders1@test.com')[0]
         res = self.client().get(self.orders_endpoint, headers={
             'Authorization': token
@@ -15,6 +25,9 @@ class TestOrdersApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 403)
 
     def test_admin_can_get_orders(self):
+        """
+        Test an admin can get orders from their customers to their catering
+        """
         token = self.login_admin('ordersadmin1@test.com')[0]
         res = self.client().get(self.orders_endpoint, headers={
             'Authorization': token
@@ -22,6 +35,9 @@ class TestOrdersApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_unauthenticated_user_cannot_order_meal(self):
+        """
+        Test unathenticated user cannot order for a meal
+        """
         res = self.client().post(self.orders_endpoint, data={'meals': []})
         self.assertEqual(res.status_code, 401)
 
@@ -151,3 +167,13 @@ class TestOrdersApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual('List of meals cannot be empty',
                          res_data['errors']['meals'])
+
+    def test_user_can_access_order(self):
+        token = self.login_test_user('testorders8@test.com')[0]
+        res = self.client().get(self.myorders_endpoint, headers={
+            'Authorization': token,
+            'Content-Type': 'application/json'
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(isinstance(res_data['orders'], list))

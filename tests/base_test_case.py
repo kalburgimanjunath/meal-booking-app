@@ -1,3 +1,6 @@
+"""
+This module is the base test case for allm test cases.
+"""
 import json
 import unittest
 from app import create_application, db
@@ -23,6 +26,7 @@ class ApiTestCase(unittest.TestCase):
         self.meals_endpoint = '/api/v1/meals'
         self.menu_endpoint = '/api/v1/menu'
         self.orders_endpoint = '/api/v1/orders'
+        self.myorders_endpoint = 'api/v1/myorders'
 
         self.test_user = {
             'email': 'solo@andela.com',
