@@ -30,6 +30,9 @@ class Role(db.Model):
 
     @staticmethod
     def insert_roles():
+        """
+        insert_roles. adds required user roles to the database
+        """
         roles = {
             'Customer': (Permission.CUSTOMER, True),
             'Admin': (Permission.CATERER, False)
@@ -63,6 +66,13 @@ class User(db.Model):
         if self.role is None:
             self.role = Role.query.filter_by(default=True).first()
 
+    def save(self):
+        """
+        save. saves model to the db
+        """
+        db.session.add(self)
+        db.session.commit()
+
     @property
     def password(self):
         raise AttributeError('password is not readable')
@@ -75,6 +85,9 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def to_dict(self):
+        """
+        to_dict. returns object as serializable dict.
+        """
         return {
             'id': self.id,
             'name': self.name,
@@ -82,10 +95,16 @@ class User(db.Model):
         }
 
     def can(self, permissions):
+        """
+        can. determines if a user does have a given permissions.
+        """
         return self.role is not None and \
             (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
+        """
+        is_administrator. determines if a user is an administrator
+        """
         return self.can(Permission.CATERER)
 
     def generate_jwt_token(self):
@@ -128,11 +147,21 @@ class Catering(db.Model):
     created_at = db.Column(db.DateTime(), default=db.func.current_timestamp())
 
     def to_dict(self):
+        """
+        to_dict. turns object to dict
+        """
         return {
             'id': self.id,
             'name': self.name,
             'address': self.address
         }
+
+    def save(self):
+        """
+        save. saves model to the database
+        """
+        db.session.add(self)
+        db.session.commit()
 
 
 menu_meals = db.Table('menu_meals',
@@ -175,6 +204,10 @@ class Menu(db.Model):
                 'address': self.catering.address
             }
         }
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Meal(db.Model):

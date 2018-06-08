@@ -1,34 +1,29 @@
+"""
+Module contains API resources for authentication
+"""
 from flask_restplus import Resource, reqparse, fields
 from ..models import User, Catering, Role
 from .import api
-from .common import str_type, validate_email_type
-from .. import db
-login_modal = api.model('login', {'email': fields.String('Email.'),
-                                  'password': fields.String('Password')})
-
-register_modal = api.model('register',
-                           {'name': fields.String('Your Name'),
-                            'email': fields.String('Your Email'),
-                               'password': fields.String('Your Password')
-                            })
+from .common import str_type, email_type
 
 
-def email_type(value):
-    if not isinstance(value, str):
-        raise ValueError("Email must be a string")
-    if not value or len(value.strip(' ')) == 0:
-        raise ValueError("Email field is required")
-    is_valid = validate_email_type(value)
-    if not is_valid:
-        raise ValueError('Email is not valid')
-    user = User.query.filter_by(email=value).first()
-    if user is not None:
-        raise ValueError("Email already in use")
-    return value
+LOGIN_MODAL = api.model('login', {
+    'email': fields.String('Email.'),
+    'password': fields.String('Password')
+})
+
+REGISTER_MODAL = api.model('register', {
+    'name': fields.String('Your Name'),
+    'email': fields.String('Your Email'),
+    'password': fields.String('Your Password')
+})
 
 
 class Register(Resource):
-    @api.expect(register_modal)
+    """
+    Register. resource for registering a user
+    """
+    @api.expect(REGISTER_MODAL)
     def post(self):
         """
         Signs up a new customer
@@ -41,18 +36,13 @@ class Register(Resource):
                             help='Password field is required')
         args = parser.parse_args()
 
-        name = args['name']
-        email = args['email']
-        password = args['password']
-
-        # create user and return the created user
-        user = User(name=name, email=email, password=password)
-        db.session.add(user)
-        db.session.commit()
+        user = User(name=args['name'], email=args['email'],
+                    password=args['password'])
+        user.save()
         return user.to_dict(), 201
 
 
-signup_business = api.model('business_signup', {
+SIGNUP_BUSINESS = api.model('business_signup', {
     'businessAddress': fields.String('Your business Address'),
     'businessName': fields.String('Your business name'),
     'email': fields.String('Your email'),
@@ -62,7 +52,10 @@ signup_business = api.model('business_signup', {
 
 
 class RegisterBusiness(Resource):
-    @api.expect(signup_business)
+    """
+    RegisterBusiness. resource for registering a business
+    """
+    @api.expect(SIGNUP_BUSINESS)
     def post(self):
         """
         Signs up a new business
@@ -78,20 +71,14 @@ class RegisterBusiness(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
-        password = args['password']
         role = Role.query.filter_by(name='Admin').first()
-        # create user and return the created user
         user = User(name=args['name'], email=args['email'],
-                    password=password, role=role)
-        db.session.add(user)
-        db.session.commit()
-
+                    password=args['password'], role=role)
+        user.save()
         catering = Catering(name=args['businessName'],
                             address=args['businessAddress'])
         catering.admin = user
-        db.session.add(catering)
-        db.session.commit()
-
+        catering.save()
         return {
             'user': user.to_dict(),
             'business': catering.to_dict()
@@ -102,10 +89,10 @@ class Login(Resource):
     """
     Class Login exposes login functionality in form of a resource
     """
-    @api.expect(login_modal)
+    @api.expect(LOGIN_MODAL)
     def post(self):
         """
-         Post handles post requests for logging in a user
+         Handles post requests for logging in a user
         """
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str_type, required=True,
@@ -114,12 +101,8 @@ class Login(Resource):
                             help='Password field is required')
         args = parser.parse_args()
 
-        email = args['email']
-        password = args['password']
-
-        user = User.query.filter_by(email=email).first()
-        if user is not None and user.verify_password(password):
-            # login in user
+        user = User.query.filter_by(email=args['email']).first()
+        if user is not None and user.verify_password(args['password']):
             token = user.generate_jwt_token()
             return {
                 'token': token

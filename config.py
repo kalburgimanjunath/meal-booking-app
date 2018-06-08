@@ -2,6 +2,9 @@ import os
 
 
 class Config:
+    """
+    Config class
+    """
     DEBUG = True
     SECRET_KEY = os.getenv('SECRET_KEY') or 'Andela-is-awesome'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -9,6 +12,9 @@ class Config:
 
     @staticmethod
     def init_app(app):
+        """
+        initialises app with the config file
+        """
         pass
 
 
@@ -33,6 +39,5 @@ class TestingConfig(Config):
 
 config = {
     'testing': TestingConfig,
-
     'default': DevConfig
 }
