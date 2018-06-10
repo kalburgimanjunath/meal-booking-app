@@ -3,7 +3,19 @@ Module to store helper functions for validation
 """
 import datetime
 import validators
-from ..models import Meal, User
+from ..models import Meal, User, Menu
+
+
+def type_menu_id(value):
+    """
+    type_menu_id defines a type for validating menu id
+    """
+    if not isinstance(value, int):
+        raise ValueError("Field value must be an integer")
+    menu = Menu.query.get(value)
+    if not menu:
+        raise ValueError("Menu with id {} does not exist".format(value))
+    return value
 
 
 def str_type(value):
@@ -12,7 +24,7 @@ def str_type(value):
     """
     if not isinstance(value, str):
         raise ValueError("Field value must be a string")
-    if not value.strip(' '):
+    elif not value.strip(' '):
         raise ValueError("This field cannot be empty")
     return value
 
@@ -23,7 +35,7 @@ def price_type(value):
     """
     if not isinstance(value, int):
         raise ValueError("Price value must be a integer")
-    if not value:
+    elif not value:
         raise ValueError("Price cannot be empty")
     return value
 
@@ -55,8 +67,7 @@ def email_type(value):
     """
     if not isinstance(value, str):
         raise ValueError("Email must be a string")
-
-    if not value.strip(' '):
+    elif not value.strip(' '):
         raise ValueError("Email field is required")
     is_valid = validate_email_type(value)
     if not is_valid:

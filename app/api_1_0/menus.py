@@ -1,14 +1,16 @@
-from flask_restplus import Resource, reqparse, fields
-from .decorators import authenticate, admin_required
+"""
+Module contains API resource for exposing catering menus
+"""
 from datetime import datetime
-from .common import str_type, validate_date, validate_meals_list
-from . import api
+from flask_restplus import Resource, reqparse, fields
 from dateutil import parser as date_parser
 from flask import request, g
+from .decorators import authenticate, admin_required
+from .common import str_type, validate_date, validate_meals_list
+from . import api
 from ..models import Menu, Meal
-from .. import db
 
-menu_model = api.model('Menu', {
+MENU_MODAL = api.model('Menu', {
     'date': fields.String('yyyy-mm-dd'),
     'title': fields.String('Title'),
     'description': fields.String('Optional)'),
@@ -17,6 +19,9 @@ menu_model = api.model('Menu', {
 
 
 class MenusResource(Resource):
+    """
+    MenusResource. for exposing menus as API endpoints
+    """
     @authenticate
     @admin_required
     @api.header('Authorization', type=str, description='Authentication token')
@@ -44,7 +49,6 @@ class MenuResource(Resource):
         Allows a customer to get a specific day menu
         """
         current_date = datetime.now().date()
-        # return all current day menus
         menus = Menu.query.filter_by(date=current_date).all()
         return {
             'menus': [menu.to_dict() for menu in menus]
@@ -52,7 +56,7 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(menu_model)
+    @api.expect(MENU_MODAL)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
@@ -94,8 +98,7 @@ class MenuResource(Resource):
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
             menu.meals.append(meal)
-        db.session.add(menu)
-        db.session.commit()
+        menu.save()
         return menu.to_dict(), 201
 
 
@@ -104,12 +107,13 @@ class SpecificMenuResource(Resource):
      Returns a menu of a given id
     """
 
-    def get(self, id):
+    def get(self, menu_id):
         """
         Returns a menu with a specific id.
         """
-        menu = Menu.query.get(id)
+        menu = Menu.query.get(menu_id)
         if menu:
             return {
                 'menu': menu.to_dict()
             }
+        return {}

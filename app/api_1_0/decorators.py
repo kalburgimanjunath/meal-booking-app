@@ -8,7 +8,7 @@ from ..models import User
 
 def authenticate(func):
     """
-    authenticate. protects a route
+    authenticate. protects a route to only authenticated users
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -30,7 +30,7 @@ def authenticate(func):
 
 def admin_required(func):
     """
-    admin_required. protects a route
+    admin_required. protects a route to only adminstrators or caterers
     """
     @wraps(func)
     def decorated_function(*args, **kwargs):

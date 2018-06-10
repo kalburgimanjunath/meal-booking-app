@@ -6,7 +6,6 @@ import json
 from flask import current_app
 from tests.base_test_case import ApiTestCase
 from app.models import Order
-from app import db
 
 
 class TestOrdersApiTestCase(ApiTestCase):
@@ -83,8 +82,7 @@ class TestOrdersApiTestCase(ApiTestCase):
         # create a test order to modify later
         order = Order(total_cost=1000, catering=admin.catering,
                       customer=user, meals=meals, menu_id=menu_id)
-        db.session.add(order)
-        db.session.commit()
+        order.save()
 
         res = self.client().put(
             self.orders_endpoint + '/{}'.format(order.id),
@@ -94,8 +92,8 @@ class TestOrdersApiTestCase(ApiTestCase):
             },
             data=json.dumps({'meals': [meal.id], 'orderCount': 2})
         )
-        self.assertEqual(res.status_code, 200)
         res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(order.id, res_data['order']['id'])
 
     def test_user_cannot_modify_expired_order(self):
@@ -109,8 +107,7 @@ class TestOrdersApiTestCase(ApiTestCase):
                       customer=user, meals=meals)
         order.expires_at = datetime.datetime.now(
         ) - datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
-        db.session.add(order)
-        db.session.commit()
+        order.save()
 
         res = self.client().put(
             self.orders_endpoint + '/{}'.format(order.id),

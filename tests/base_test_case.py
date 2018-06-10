@@ -72,18 +72,15 @@ class ApiTestCase(unittest.TestCase):
         role = Role.query.filter_by(name='Admin').first()
         u = User(name='admin', email=email,
                  password='admin', role=role)
-        db.session.add(u)
-        db.session.commit()
+        u.save()
         business = Catering(name='biz', address='kla', admin=u)
-        db.session.add(business)
-        db.session.commit()
+        business.save()
         response = self.make_post_request(
             self.user_login_endpoint, {'email': email,
                                        'password': 'admin'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
-        # token = 'Bearer ' + token
 
         self.assertIsNotNone(token)  # verify that we have the token
         return token, u
@@ -111,11 +108,10 @@ class ApiTestCase(unittest.TestCase):
         """
         meal = Meal(title='lorem meal', price=10000,
                     description='lorem ipsum desc')
-        db.session.add(meal)
+        meal.save()
         meal2 = Meal(title='Beef with rice', price=1500,
                      description='lorem desc ipsum')
-        db.session.add(meal2)
-        db.session.commit()
+        meal2.save()
 
     def add_test_meal(self, user=None):
         """
@@ -125,11 +121,13 @@ class ApiTestCase(unittest.TestCase):
                     description='lorem desc ipsum')
         if user:
             meal.catering = user.catering
-        db.session.add(meal)
-        db.session.commit()
+        meal.save()
         return meal
 
     def add_test_menu(self):
+        """
+        add_test_menu. adds mock test menu
+        """
         token, user = self.login_admin('admin_m1@test.com')
         meal = self.add_test_meal(user)
         menu = {

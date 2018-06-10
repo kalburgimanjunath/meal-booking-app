@@ -25,4 +25,4 @@ api.add_resource(OrderResource, '/orders/<int:order_id>')
 api.add_resource(OrdersResource, '/orders')
 
 api.add_resource(MyOrderResource, '/myorders')
-api.add_resource(SpecificMenuResource, '/menu/<int:id>')
+api.add_resource(SpecificMenuResource, '/menu/<int:menu_id>')

@@ -1,6 +1,5 @@
 from tests.base_test_case import ApiTestCase
 from app.models import Meal, User
-from app import db
 
 
 class TestMealsApiTestCase(ApiTestCase):
@@ -72,8 +71,7 @@ class TestMealsApiTestCase(ApiTestCase):
 
         meal = Meal(title='lorem ipsum', price=2000,
                     description='lorem ipsum', catering=user.catering)
-        db.session.add(meal)
-        db.session.commit()
+        meal.save()
         res = self.client().put(
             self.meals_endpoint + '/1',
             headers={
@@ -94,8 +92,7 @@ class TestMealsApiTestCase(ApiTestCase):
 
         meal = Meal(title='lorem ipsum', price=2000,
                     description='lorem ipsum', catering=user.catering)
-        db.session.add(meal)
-        db.session.commit()
+        meal.save()
 
         res = self.client().delete(
             self.meals_endpoint + '/{}'.format(meal.id),

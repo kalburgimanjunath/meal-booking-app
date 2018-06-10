@@ -1,11 +1,13 @@
+"""
+Module contains Api resources for exposing orders
+"""
 import datetime
 from flask import g, current_app, request
 from flask_restplus import Resource, reqparse, fields
 from ..models import Order, Meal, Menu
 from .decorators import authenticate, admin_required
 from . import api
-from .common import validate_meals_list
-from .. import db
+from .common import validate_meals_list, type_menu_id
 
 ORDER_MODEL = api.model('order', {
     'meals': fields.String('[]'),
@@ -50,10 +52,7 @@ class OrderResource(Resource):
             return {
                 'error': 'Order with such id {} doesnot exist'.format(order_id)
             }, 400
-        # check if the order has not yet expired
-        time_diff = datetime.timedelta(
-            minutes=current_app.config['ORDER_EXPIRES_IN'])
-        if order.expires_at and datetime.datetime.now() - order.expires_at > time_diff:  # noqa
+        if order.is_expired():
             return {
                 'error': 'Order expired and cannot be modify it'
             }, 400
@@ -68,7 +67,7 @@ class OrderResource(Resource):
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
         order.expires_at = expires_at
         total_cost = 0
-        order.meals.clear()  # remove all items from the array
+        order.meals.clear()  # remove all meal items from the array
         for meal_id in meals:
             meal = Meal.query.get(int(meal_id))
             if meal:
@@ -77,23 +76,10 @@ class OrderResource(Resource):
 
         order.total_cost = total_cost * int(order_count)
         order.order_count = int(order_count)
-        db.session.add(order)
-        db.session.commit()
+        order.save()
         return {
             'order': order.to_dict()
         }, 200
-
-
-def type_menu_id(value):
-    """
-    type_menu_id defines a type for validating memu id
-    """
-    if not isinstance(value, int):
-        raise ValueError("Field value must be an integer")
-    menu = Menu.query.get(value)
-    if not menu:
-        raise ValueError("Menu with id {} does not exist".format(value))
-    return value
 
 
 class OrdersResource(Resource):
@@ -127,7 +113,6 @@ class OrdersResource(Resource):
                             help='menu id is required', required=True)
         args = parser.parse_args()
         menu = Menu.query.filter_by(id=args['menuId']).first()
-        print(menu.id)
 
         val = validate_meals_list(meals)
         if val:
@@ -145,8 +130,7 @@ class OrdersResource(Resource):
         order = Order(total_cost=total_cost, meals=order_meals,
                       customer=customer, catering=menu.catering, menu=menu,
                       order_count=int(order_count))
-        db.session.add(order)
-        db.session.commit()
+        order.save()
         return {
             'order': order.to_dict()
         }, 201
@@ -154,7 +138,7 @@ class OrdersResource(Resource):
 
 class MyOrderResource(Resource):
     """
-    Resource exposes a customer's orders
+    Resource exposes a customer's orders as an endpoint.
     """
     @authenticate
     def get(self):

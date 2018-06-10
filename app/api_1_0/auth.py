@@ -76,8 +76,7 @@ class RegisterBusiness(Resource):
                     password=args['password'], role=role)
         user.save()
         catering = Catering(name=args['businessName'],
-                            address=args['businessAddress'])
-        catering.admin = user
+                            address=args['businessAddress'], admin=user)
         catering.save()
         return {
             'user': user.to_dict(),
@@ -100,7 +99,6 @@ class Login(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
-
         user = User.query.filter_by(email=args['email']).first()
         if user is not None and user.verify_password(args['password']):
             token = user.generate_jwt_token()

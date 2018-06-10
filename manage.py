@@ -11,7 +11,7 @@ migrate = Migrate(app, db)
 
 
 def make_shell_context():
-    return dict(app=app, User=User, Menu=Menu, db=db, Order=Order)
+    return dict(app=app, User=User, Menu=Menu, db=db, Order=Order, Meal=Meal)
 
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
@@ -31,7 +31,7 @@ def test():
 @manager.command
 def initialize():
     """
-     Initialize application by inserting roles
+     Initialize application by inserting required roles for creating users.
     """
     from flask_migrate import upgrade
     from app.models import Role

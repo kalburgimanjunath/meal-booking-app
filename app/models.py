@@ -8,6 +8,28 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 
 
+class BaseModel(db.Model):
+    """
+    Base model for all db models.
+    """
+    __abstract__ = True
+    created_at = db.Column(db.DateTime(), default=db.func.current_timestamp())
+
+    def save(self):
+        """
+        save. saves model to the database
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """
+        delete. removes a model from database
+        """
+        db.session.delete(self)
+        db.session.commit()
+
+
 class Permission:
     """
      Permission represents persmissions held by a role
@@ -16,7 +38,7 @@ class Permission:
     CATERER = 4
 
 
-class Role(db.Model):
+class Role(BaseModel):
     """
      Role represents the roles table
     """
@@ -47,7 +69,7 @@ class Role(db.Model):
         db.session.commit()
 
 
-class User(db.Model):
+class User(BaseModel):
     """
     User class represents the users table
     """
@@ -59,22 +81,17 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     orders = db.relationship('Order', backref='customer', lazy='dynamic')
-    created_at = db.Column(db.DateTime(), default=db.func.current_timestamp())
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
             self.role = Role.query.filter_by(default=True).first()
 
-    def save(self):
-        """
-        save. saves model to the db
-        """
-        db.session.add(self)
-        db.session.commit()
-
     @property
     def password(self):
+        """
+        makes password a write only attribute
+        """
         raise AttributeError('password is not readable')
 
     @password.setter
@@ -82,6 +99,9 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
+        """
+        verify_password. verifies a user's password
+        """
         return check_password_hash(self.password_hash, password)
 
     def to_dict(self):
@@ -108,6 +128,9 @@ class User(db.Model):
         return self.can(Permission.CATERER)
 
     def generate_jwt_token(self):
+        """
+        generate_jwt_token. generates a jwt token after user authentication
+        """
         s = Serializer(current_app.config['SECRET_KEY'],
                        expires_in=360000)
         return s.dumps({
@@ -130,7 +153,7 @@ class User(db.Model):
         return User.query.get(data['id'])
 
 
-class Catering(db.Model):
+class Catering(BaseModel):
     """
     Catering class represents caterings table
     """
@@ -156,13 +179,6 @@ class Catering(db.Model):
             'address': self.address
         }
 
-    def save(self):
-        """
-        save. saves model to the database
-        """
-        db.session.add(self)
-        db.session.commit()
-
 
 menu_meals = db.Table('menu_meals',
                       db.Column('menu_id', db.Integer, db.ForeignKey(
@@ -172,7 +188,7 @@ menu_meals = db.Table('menu_meals',
                       )
 
 
-class Menu(db.Model):
+class Menu(BaseModel):
     """
     Menu class represents the menus table
     """
@@ -205,12 +221,8 @@ class Menu(db.Model):
             }
         }
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
 
-
-class Meal(db.Model):
+class Meal(BaseModel):
     """
     Meal class represents the meals table
     """
@@ -238,11 +250,10 @@ order_meals = db.Table('order_meals',
                        db.Column('order_id', db.Integer, db.ForeignKey(
                            'orders.id'), primary_key=True),
                        db.Column('meal_id', db.Integer, db.ForeignKey(
-                           'meals.id'), primary_key=True)
-                       )
+                           'meals.id'), primary_key=True))
 
 
-class Order(db.Model):
+class Order(BaseModel):
     """
     Order class represents the orders table
     """
@@ -262,6 +273,16 @@ class Order(db.Model):
         super(Order, self).__init__(**kwargs)
         self.expires_at = datetime.datetime.now(
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
+
+    def is_expired(self):
+        """
+        is_expired. determines if an order is expired
+        """
+        time_diff = datetime.timedelta(
+            minutes=current_app.config['ORDER_EXPIRES_IN'])
+        if self.expires_at and datetime.datetime.now() - self.expires_at > time_diff:
+            return True
+        return False
 
     def to_dict(self):
         """
