@@ -2,20 +2,14 @@
 Module contains API resource for exposing catering menus
 """
 from datetime import datetime
-from flask_restplus import Resource, reqparse, fields
+from flask_restplus import Resource, fields
 from dateutil import parser as date_parser
-from flask import request, g
+from flask import g
 from .decorators import authenticate, admin_required
-from .common import str_type, validate_date, validate_meals_list
+from .common import save_image, validate_meals
 from . import api
+from . import parsers
 from ..models import Menu, Meal
-
-MENU_MODAL = api.model('Menu', {
-    'date': fields.String('yyyy-mm-dd'),
-    'title': fields.String('Title'),
-    'description': fields.String('Optional)'),
-    'meals': fields.String('[]')
-})
 
 
 class MenusResource(Resource):
@@ -56,48 +50,24 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(MENU_MODAL)
+    @api.expect(parsers.menu_modal)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
         Allows a business create a specific day menu
         """
-        parser = reqparse.RequestParser()
-        parser.add_argument('date', type=str_type,
-                            required=True, help='Date field is required')
-        parser.add_argument('title', type=str_type, required=True,
-                            help='Title field is required')
-        parser.add_argument('description', type=str)
-        args = parser.parse_args()
-        meals = request.json.get('meals', '')
-        val = validate_meals_list(meals)
-        if val:
-            return val, 400
-
-        # validate date
-        if not validate_date(args['date']):
-            return {
-                'errors': {
-                    'date': 'Incorrect date format, should be YYYY-MM-DD'
-                }
-            }, 400
+        args = parsers.menu_modal.parse_args()
         user = g.current_user
         menu_date = date_parser.parse(args['date'])
-        menu = Menu.query.filter_by(
-            catering=user.catering).filter_by(date=menu_date).first()
-        if menu:
-            return {
-                'errors': {
-                    'date': 'Menu for the specific date {} already set'.format(
-                        args['date'])
-                }
-            }, 400
 
+        image_path = save_image(args)
         menu = Menu(title=args['title'], description=args['description'],
-                    date=menu_date, catering=user.catering)
+                    date=menu_date, catering=user.catering, image_url=image_path)
+        meals = args['meals']
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
-            menu.meals.append(meal)
+            if meal:
+                menu.meals.append(meal)
         menu.save()
         return menu.to_dict(), 201
 

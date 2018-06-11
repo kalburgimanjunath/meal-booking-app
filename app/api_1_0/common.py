@@ -1,9 +1,66 @@
 """
 Module to store helper functions for validation
 """
+import os
 import datetime
+import uuid
 import validators
+from dateutil import parser as date_parser
+from flask import current_app, g
 from ..models import Meal, User, Menu
+
+
+def validate_meals(value):
+    """
+    validates a list of meals
+    """
+    if not is_list(value):
+        raise ValueError("Field meals is required and should be a JSON array")
+    for meal_id in value:
+        meal = Meal.query.get(meal_id)
+        if not meal:
+            raise ValueError("Meal ids donot correspond to any meal")
+    return value
+
+
+def menu_date_type(value):
+    """
+    validates menu date and ensures only one menu is created for a date
+    """
+    value = str_type(value)
+    if not validate_date(value):
+        raise ValueError('Incorrect date format, should be YYYY-MM-DD')
+    user = g.current_user
+    menu_date = date_parser.parse(value)
+    menu = Menu.query.filter_by(
+        catering=user.catering).filter_by(date=menu_date).first()
+    if menu:
+        raise ValueError(
+            'Menu for the specific date {} is already set'.format(value))
+    return value
+
+
+def save_image(args):
+    """
+    save_image. saves image uploads
+    """
+    if args['image_file']:
+        mime_type = args['image_file'].mimetype
+        if mime_type == 'image/png' or mime_type == 'image/jpeg':
+            if 'png' in mime_type:
+                file_type = 'png'
+            elif 'jpeg' in mime_type:
+                file_type = 'jpeg'
+            destination = os.path.join(
+                current_app.config.get('DATA_FOLDER'), 'medias/')
+            if not os.path.exists(destination):
+                os.makedirs(destination)
+
+            image_file = '%s%s' % (
+                destination, '{0}.{1}'.format(uuid.uuid4(), file_type))
+            args['image_file'].save(image_file)
+            return image_file.replace('app', '')
+    return None
 
 
 def type_menu_id(value):
@@ -35,8 +92,8 @@ def price_type(value):
     """
     if not isinstance(value, int):
         raise ValueError("Price value must be a integer")
-    elif not value:
-        raise ValueError("Price cannot be empty")
+    elif not value or value <= 0:
+        raise ValueError("Price cannot be less or equal to zero / empty")
     return value
 
 
