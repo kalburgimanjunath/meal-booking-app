@@ -2,7 +2,7 @@
 Module for testing util functions
 """
 from app.api_1_0.common import validate_date, validate_email_type, \
-    is_list, price_type, str_type
+    is_list, price_type, str_type, menu_date_type
 from tests.base_test_case import ApiTestCase
 
 
@@ -82,3 +82,20 @@ class UtilsTestCase(ApiTestCase):
         """
         r = self.client().get('/')
         self.assertEqual(r.status_code, 200)
+
+    def test_menu_date_type(self):
+        """
+        tests a menu date
+        """
+        self.add_test_menu()
+        with self.assertRaises(ValueError) as ctx:
+            menu_date = "2018-04-26"
+            menu_date_type(menu_date)
+        self.assertEqual(
+            'Menu for the specific date {} is already set'.format(menu_date), str(ctx.exception))
+
+        with self.assertRaises(ValueError) as ctx:
+            menu_date = "2018/00/10"
+            menu_date_type(menu_date)
+        self.assertEqual(
+            'Incorrect date format, should be YYYY-MM-DD', str(ctx.exception))

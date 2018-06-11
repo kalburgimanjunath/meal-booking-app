@@ -139,3 +139,43 @@ class TestMenusApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 400)
         res_data = self.get_response_data(res)
         self.assertIn('errors', res_data)
+
+    def test_admin_can_delete_menu(self):
+        """
+        test menu deletion
+        """
+        token = self.login_admin('admin_m1@test.com')[0]
+        menu_id = self.add_test_menu()
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        res = self.client().delete(endpoint, headers={
+            'Authorization': token
+        })
+        self.assertEqual(res.status_code, 200)
+        res_data = self.get_response_data(res)
+        self.assertIn('status', res_data)
+
+    def test_admin_can_edit_menu(self):
+        """
+        tests an admin can edit their menu
+        """
+        menu_id = self.add_test_menu()
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        token, user = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(user)
+        menu = {
+            "date": "2018-04-27",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id]
+        }
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(menu)
+        )
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('id', res_data)

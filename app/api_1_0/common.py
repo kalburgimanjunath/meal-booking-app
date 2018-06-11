@@ -2,12 +2,24 @@
 Module to store helper functions for validation
 """
 import os
+import errno
 import datetime
 import uuid
 import validators
 from dateutil import parser as date_parser
 from flask import current_app, g
 from ..models import Meal, User, Menu
+
+
+def silentremove(path):
+    """
+    silently removes a file
+    """
+    try:
+        os.remove(path)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
 
 
 def validate_meals(value):
@@ -27,9 +39,7 @@ def menu_date_type(value):
     """
     validates menu date and ensures only one menu is created for a date
     """
-    value = str_type(value)
-    if not validate_date(value):
-        raise ValueError('Incorrect date format, should be YYYY-MM-DD')
+    value = edit_menu_date_type(value)
     user = g.current_user
     menu_date = date_parser.parse(value)
     menu = Menu.query.filter_by(
@@ -37,6 +47,16 @@ def menu_date_type(value):
     if menu:
         raise ValueError(
             'Menu for the specific date {} is already set'.format(value))
+    return value
+
+
+def edit_menu_date_type(value):
+    """
+    validates menu date
+    """
+    value = str_type(value)
+    if not validate_date(value):
+        raise ValueError('Incorrect date format, should be YYYY-MM-DD')
     return value
 
 
