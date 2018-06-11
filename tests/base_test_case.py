@@ -145,6 +145,7 @@ class ApiTestCase(unittest.TestCase):
             data=json.dumps(menu)
         )
         res_data = self.get_response_data(res)
+        print(res_data)
         return res_data['id']
 
     def get_response_data(self, response):

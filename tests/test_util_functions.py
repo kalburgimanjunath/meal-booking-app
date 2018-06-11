@@ -1,4 +1,8 @@
-from app.api_1_0.common import validate_date, validate_email_type
+"""
+Module for testing util functions
+"""
+from app.api_1_0.common import validate_date, validate_email_type, \
+    is_list, price_type, str_type
 from tests.base_test_case import ApiTestCase
 
 
@@ -26,3 +30,55 @@ class UtilsTestCase(ApiTestCase):
         self.assertTrue(is_valid)
         is_not_valid = validate_date('05-05-2018')
         self.assertFalse(is_not_valid)
+
+    def test_is_list(self):
+        """
+        tests the is_list func
+        """
+        is_valid = is_list([])
+        self.assertTrue(is_valid)
+
+        is_invalid = is_list('str not list')
+        self.assertFalse(is_invalid)
+
+    def test_is_price_type(self):
+        """
+        tests meal price_type
+        """
+        price = 100
+        val = price_type(price)
+        self.assertEqual(price, val)
+
+        with self.assertRaises(ValueError) as ctx:
+            price = ""
+            price_type(price)
+        self.assertEqual('Price value must be a integer',
+                         str(ctx.exception))
+
+        with self.assertRaises(ValueError) as ctx:
+            price = -1
+            price_type(price)
+        self.assertEqual(
+            'Price cannot be less or equal to zero / empty', str(ctx.exception))
+
+    def test_str_type(self):
+        """
+        tests str_type
+        """
+        val = str_type("test")
+        self.assertEqual(val, "test")
+
+        with self.assertRaises(ValueError) as ctx:
+            str_type(121)
+        self.assertEqual("Field value must be a string", str(ctx.exception))
+
+        with self.assertRaises(ValueError) as ctx:
+            str_type('  ')
+        self.assertEqual("This field cannot be empty", str(ctx.exception))
+
+    def test_index_page(self):
+        """
+        tests rendering of index page
+        """
+        r = self.client().get('/')
+        self.assertEqual(r.status_code, 200)
