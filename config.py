@@ -28,6 +28,14 @@ class DevConfig(Config):
         'postgresql://andela1:AnDELa@localhost/bookamealdb')
 
 
+class HerokuConfig(Config):
+    """
+    Configuration for heroku app
+    """
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    DEBUG = False
+
+
 class TestingConfig(Config):
     """
      Configurations for testing
