@@ -2,6 +2,7 @@
 This module contains models of entities showing how they relate to each other
 """
 import datetime
+import os
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -197,6 +198,7 @@ class Menu(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
+    image_url = db.Column(db.String(128))
     date = db.Column(db.Date)
     meals = db.relationship('Meal', secondary=menu_meals, lazy='subquery',
                             backref=db.backref('menu', lazy=True))
@@ -208,6 +210,11 @@ class Menu(BaseModel):
         """
           Turns Menu into a dict for easy serialization
         """
+        if self.image_url:
+            url = '{0}'.format(self.image_url)
+        else:
+            url = os.path.join(
+                current_app.config.get('DATA_FOLDER'), 'medias/default.jpg').replace('app', '')
         return {
             'id': self.id,
             'title': self.title,
@@ -218,7 +225,8 @@ class Menu(BaseModel):
                 'id': self.id,
                 'name': self.catering.name,
                 'address': self.catering.address
-            }
+            },
+            'url': url
         }
 
 

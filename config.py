@@ -9,6 +9,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY') or 'Andela-is-awesome'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ORDER_EXPIRES_IN = 5
+    DATA_FOLDER = 'app/static'
 
     @staticmethod
     def init_app(app):
