@@ -1,3 +1,6 @@
+"""
+Module contains the configurations for the application
+"""
 import os
 
 
