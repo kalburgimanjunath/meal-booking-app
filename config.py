@@ -51,5 +51,5 @@ class TestingConfig(Config):
 
 config = {
     'testing': TestingConfig,
-    'default': DevConfig
+    'default': HerokuConfig
 }
