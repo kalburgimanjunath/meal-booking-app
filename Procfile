@@ -1,2 +1,2 @@
 web: gunicorn manage:app
-release: python manage.py initialise
+release: python manage.py initialize
