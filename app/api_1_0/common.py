@@ -9,19 +9,6 @@ from flask import g
 from ..models import Meal, User, Menu
 
 
-def validate_meals(value):
-    """
-    validates a list of meals
-    """
-    if not is_list(value):
-        raise ValueError("Field meals is required and should be a JSON array")
-    for meal_id in value:
-        meal = Meal.query.get(meal_id)
-        if not meal:
-            raise ValueError("Meal ids donot correspond to any meal")
-    return value
-
-
 def menu_date_type(value):
     """
     validates menu date and ensures only one menu is created for a date

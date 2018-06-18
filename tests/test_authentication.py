@@ -1,6 +1,6 @@
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from tests.base_test_case import ApiTestCase
 from app.models import User
-from app import db
 
 
 class AuthenticationTestCase(ApiTestCase):
@@ -15,6 +15,19 @@ class AuthenticationTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
         self.assertIn('errors', data)
+
+    def test_wrong_token_doesnot_authenticated(self):
+        s = Serializer('-secret', expires_in=360000)
+        token = s.dumps({
+            'id': 'id'
+        }).decode('ascii')
+
+        res = self.client().get(self.meals_endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res_data['error'], 'Authorization failed try again')
 
     def test_api_cannot_register_user_with_empty_password(self):
         self.test_user['password'] = ''
@@ -32,8 +45,7 @@ class AuthenticationTestCase(ApiTestCase):
     def test_api_can_login_registered_user(self):
         # register user first
         user = User(name='solo', email='solo@yahoo.com', password='test')
-        db.session.add(user)
-        db.session.commit()
+        user.save()
 
         res = self.make_post_request(
             self.user_login_endpoint, {'email': 'solo@yahoo.com',
@@ -52,8 +64,7 @@ class AuthenticationTestCase(ApiTestCase):
 
     def test_token_returned_on_authenticating(self):
         user = User(name='solo', email='solo1@yahoo.com', password='test')
-        db.session.add(user)
-        db.session.commit()
+        user.save()
         res = self.make_post_request(
             self.user_login_endpoint, {'email': 'solo1@yahoo.com',
                                        'password': 'test'})
