@@ -7,12 +7,6 @@ class TestMenusApiTestCase(ApiTestCase):
     Tests for menus api endpoints
     """
 
-    # def test_unauthenticated_user_cannot_access_menu(self):
-    #     res = self.client().get(self.menu_endpoint)
-    #     self.assertEqual(res.status_code, 401)
-    #     res_data = self.get_response_data(res)
-    #     self.assertIn('error', res_data)
-
     def test_authenticated_user_can_access_menu(self):
         """
         tests unauthenticated user can access menus
@@ -267,3 +261,24 @@ class TestMenusApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data['errors'],
                          'Requested menu with id 1000 does not exist')
+
+    def test_admin_cannot_modify_menu_without_fields(self):
+        """
+        tests an admin can edit their menu
+        """
+        menu_id = self.add_test_menu()
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        token = self.login_admin('admin_m1@test.com')[0]
+        menu = {}
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(menu)
+        )
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data['error'],
+                         'No fields specified to be modified')
