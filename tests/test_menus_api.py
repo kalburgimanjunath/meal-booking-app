@@ -1,6 +1,5 @@
 import json
 from tests.base_test_case import ApiTestCase
-from app.models import User, Meal
 
 
 class TestMenusApiTestCase(ApiTestCase):
@@ -15,6 +14,9 @@ class TestMenusApiTestCase(ApiTestCase):
     #     self.assertIn('error', res_data)
 
     def test_authenticated_user_can_access_menu(self):
+        """
+        tests unauthenticated user can access menus
+        """
         token = self.login_test_user('test_menu@test.com')[0]
         res = self.client().get(
             self.menu_endpoint,
@@ -202,3 +204,66 @@ class TestMenusApiTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
+
+    def test_can_get_menus(self):
+        """
+        tests. admin can get menus
+        """
+        token = self.login_admin('admin_m1@test.com')[0]
+        res = self.client().get(self.get_menus_endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertIsInstance(res_data['menus'], list)
+
+    def test_cannot_delete_nonexistent_menu(self):
+        """
+        tests cannot delete menu that doesnot exists
+        """
+        token = self.login_admin('admin_m1@test.com')[0]
+        endpoint = '/api/v1/menu/10000'  # create endpoint with non-existent menu id
+        res = self.client().delete(endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data['error'], 'Menu with id 10000 doesnot exist')
+
+    def test_cannot_modify_nonexistent_menu(self):
+        """
+        tests admin cannot modify non-existent menu
+        """
+        endpoint = '/api/v1/menu/{0}'.format(10000)
+        token = self.login_admin('admin_m1@test.com')[0]
+
+        res = self.client().put(endpoint, headers={
+            'Authorization': token
+        }, data=json.dumps({}))
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data['error'],
+                         'menu with id 10000 does not exist')
+
+    def test_can_get_a_menu(self):
+        menu_id = self.add_test_menu()
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        token = self.login_admin('admin_m1@test.com')[0]
+        res = self.client().get(endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data['menu']['id'], menu_id)
+
+    def test_cannot_get_nonexistent_menu(self):
+        menu_id = 1000
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        token = self.login_admin('admin_m1@test.com')[0]
+        res = self.client().get(endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data['errors'],
+                         'Requested menu with id 1000 does not exist')

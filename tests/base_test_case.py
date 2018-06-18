@@ -27,6 +27,7 @@ class ApiTestCase(unittest.TestCase):
         self.menu_endpoint = '/api/v1/menu'
         self.orders_endpoint = '/api/v1/orders'
         self.myorders_endpoint = 'api/v1/myorders'
+        self.get_menus_endpoint = 'api/v1/menus'
 
         self.test_user = {
             'email': 'solo@andela.com',

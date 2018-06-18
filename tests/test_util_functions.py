@@ -3,6 +3,7 @@ Module for testing util functions
 """
 from app.api_1_0.common import validate_date, validate_email_type, \
     is_list, price_type, str_type, menu_date_type
+from app.utils import silentremove
 from tests.base_test_case import ApiTestCase
 
 
