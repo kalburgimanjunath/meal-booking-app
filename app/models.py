@@ -2,13 +2,11 @@
 This module contains models of entities showing how they relate to each other
 """
 import datetime
-import os
 from flask import current_app
 from dateutil import parser
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
-from .utils import save_image, silentremove
 
 
 class BaseModel(db.Model):
@@ -199,7 +197,6 @@ class Menu(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
-    image_url = db.Column(db.String(128))
     date = db.Column(db.Date)
     meals = db.relationship('Meal', secondary=menu_meals, lazy='subquery',
                             backref=db.backref('menu', lazy=True))
@@ -225,13 +222,7 @@ class Menu(BaseModel):
         modified = False
         for key in args:
             if args[key] is not None:
-                if key == 'image_file':
-                    modified = True
-                    image_path = save_image(args)
-                    if image_path is not None:
-                        silentremove('app{0}'.format(self.image_url))
-                        self.image_url = image_path
-                elif key == 'meals' and args['meals']:
+                if key == 'meals' and args['meals']:
                     modified = True
                     self.meals.clear()
                     for meal_id in args['meals']:
@@ -247,11 +238,6 @@ class Menu(BaseModel):
         """
           Turns Menu into a dict for easy serialization
         """
-        if self.image_url:
-            url = '{0}'.format(self.image_url)
-        else:
-            url = os.path.join(
-                current_app.config.get('DATA_FOLDER'), 'medias/default.jpg').replace('app', '')
         return {
             'id': self.id,
             'title': self.title,
@@ -262,8 +248,7 @@ class Menu(BaseModel):
                 'id': self.id,
                 'name': self.catering.name,
                 'address': self.catering.address
-            },
-            'url': url
+            }
         }
 
 

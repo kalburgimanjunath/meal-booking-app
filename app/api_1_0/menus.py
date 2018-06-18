@@ -6,7 +6,7 @@ from datetime import datetime
 from flask_restplus import Resource
 from flask import g
 from .decorators import authenticate, admin_required
-from ..utils import save_image
+# from ..utils import save_image
 from . import api
 from . import parsers
 from ..models import Menu, Meal
@@ -60,9 +60,8 @@ class MenuResource(Resource):
         args = parsers.menu_modal.parse_args()
         user = g.current_user
 
-        image_path = save_image(args)
         menu = Menu(title=args['title'], description=args['description'],
-                    menu_date=args['date'], catering=user.catering, image_url=image_path)
+                    menu_date=args['date'], catering=user.catering)
         meals = args['meals']
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
