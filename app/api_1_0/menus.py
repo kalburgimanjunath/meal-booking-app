@@ -1,12 +1,12 @@
 """
 Module contains API resource for exposing catering menus
 """
+
 from datetime import datetime
 from flask_restplus import Resource
-from dateutil import parser as date_parser
 from flask import g
 from .decorators import authenticate, admin_required
-from .common import save_image, menu_date_type, edit_menu_date_type, silentremove
+from ..utils import save_image
 from . import api
 from . import parsers
 from ..models import Menu, Meal
@@ -56,15 +56,13 @@ class MenuResource(Resource):
         """
         Allows a business create a specific day menu
         """
-        parsers.menu_modal.add_argument(
-            'date', type=menu_date_type, required=True)
+
         args = parsers.menu_modal.parse_args()
         user = g.current_user
-        menu_date = date_parser.parse(args['date'])
 
         image_path = save_image(args)
         menu = Menu(title=args['title'], description=args['description'],
-                    date=menu_date, catering=user.catering, image_url=image_path)
+                    menu_date=args['date'], catering=user.catering, image_url=image_path)
         meals = args['meals']
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
@@ -89,11 +87,13 @@ class SpecificMenuResource(Resource):
             return {
                 'menu': menu.to_dict()
             }
-        return {}
+        return {
+            'errors': 'Requested menu with id {} does not exist'.format(menu_id)
+        }, 400
 
     @authenticate
     @admin_required
-    @api.expect(parsers.menu_modal)
+    @api.expect(parsers.edit_menu_modal)
     @api.header('Authorization', type=str, description='Authentication token')
     def put(self, menu_id):
         """
@@ -105,24 +105,14 @@ class SpecificMenuResource(Resource):
             return {
                 'error': 'menu with id {} does not exist'.format(menu_id)
             }, 400
-        parsers.menu_modal.add_argument(
-            'date', type=edit_menu_date_type, required=True)
-        args = parsers.menu_modal.parse_args()
-        image_path = save_image(args)
-        if image_path is not None:
-            silentremove('app{0}'.format(menu.image_url))
-            menu.image_url = image_path
-        menu.title = args['title']
-        menu.description = args['description']
-        menu.date = date_parser.parse(args['date'])
-
-        menu.meals.clear()
-        meals = args['meals']
-        for meal_id in meals:
-            meal = Meal.query.get(meal_id)
-            if meal:
-                menu.meals.append(meal)
-        menu.save()
+        args = parsers.edit_menu_modal.parse_args()
+        modified = menu.modify(args)
+        if modified:
+            menu.save()
+        else:
+            return {
+                'error': 'No fields specified to be modified'
+            }, 400
         return menu.to_dict(), 200
 
     @authenticate
@@ -138,7 +128,7 @@ class SpecificMenuResource(Resource):
             menu.delete()
             return {
                 'status': 'Menu deleted successfully'
-            }
+            }, 200
         return {
             'error': 'Menu with id {0} doesnot exist'.format(menu_id)
-        }
+        }, 400

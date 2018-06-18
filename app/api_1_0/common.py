@@ -1,25 +1,12 @@
 """
 Module to store helper functions for validation
 """
-import os
-import errno
+
 import datetime
-import uuid
 import validators
 from dateutil import parser as date_parser
-from flask import current_app, g
+from flask import g
 from ..models import Meal, User, Menu
-
-
-def silentremove(path):
-    """
-    silently removes a file
-    """
-    try:
-        os.remove(path)
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
 
 
 def validate_meals(value):
@@ -58,29 +45,6 @@ def edit_menu_date_type(value):
     if not validate_date(value):
         raise ValueError('Incorrect date format, should be YYYY-MM-DD')
     return value
-
-
-def save_image(args):
-    """
-    save_image. saves image uploads
-    """
-    if args['image_file']:
-        mime_type = args['image_file'].mimetype
-        if mime_type == 'image/png' or mime_type == 'image/jpeg':
-            if 'png' in mime_type:
-                file_type = 'png'
-            elif 'jpeg' in mime_type:
-                file_type = 'jpeg'
-            destination = os.path.join(
-                current_app.config.get('DATA_FOLDER'), 'medias/')
-            if not os.path.exists(destination):
-                os.makedirs(destination)
-
-            image_file = '%s%s' % (
-                destination, '{0}.{1}'.format(uuid.uuid4(), file_type))
-            args['image_file'].save(image_file)
-            return image_file.replace('app', '')
-    return None
 
 
 def type_menu_id(value):
@@ -165,6 +129,9 @@ def is_list(value):
 
 
 def validate_meals_list(meals):
+    """
+    validates a list of meals
+    """
     if not is_list(meals):
         return {
             'errors': {

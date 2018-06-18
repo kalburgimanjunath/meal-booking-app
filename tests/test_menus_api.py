@@ -179,3 +179,26 @@ class TestMenusApiTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
+
+    def test_can_edit_menu_meals_only(self):
+        """
+        tests modification of meals only on a menu
+        """
+        menu_id = self.add_test_menu()
+        endpoint = '/api/v1/menu/{0}'.format(menu_id)
+        token, user = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(user)
+        menu = {
+            "meals": [meal.id]
+        }
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(menu)
+        )
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('id', res_data)

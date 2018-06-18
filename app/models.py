@@ -4,9 +4,11 @@ This module contains models of entities showing how they relate to each other
 import datetime
 import os
 from flask import current_app
+from dateutil import parser
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
+from .utils import save_image, silentremove
 
 
 class BaseModel(db.Model):
@@ -185,8 +187,7 @@ menu_meals = db.Table('menu_meals',
                       db.Column('menu_id', db.Integer, db.ForeignKey(
                           'menus.id'), primary_key=True),
                       db.Column('meal_id', db.Integer, db.ForeignKey(
-                          'meals.id'), primary_key=True)
-                      )
+                          'meals.id'), primary_key=True))
 
 
 class Menu(BaseModel):
@@ -205,6 +206,42 @@ class Menu(BaseModel):
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
     orders = db.relationship('Order', backref='menu', lazy='dynamic')
     created_at = db.Column(db.DateTime(), default=db.func.current_timestamp())
+
+    @property
+    def menu_date(self):
+        """
+        define property menu date for setting or getting date
+        """
+        return str(self.date)
+
+    @menu_date.setter
+    def menu_date(self, menu_date):
+        self.date = parser.parse(menu_date)
+
+    def modify(self, args):
+        """
+        modifies self, setting attributes
+        """
+        modified = False
+        for key in args:
+            if args[key] is not None:
+                if key == 'image_file':
+                    modified = True
+                    image_path = save_image(args)
+                    if image_path is not None:
+                        silentremove('app{0}'.format(self.image_url))
+                        self.image_url = image_path
+                elif key == 'meals' and args['meals']:
+                    modified = True
+                    self.meals.clear()
+                    for meal_id in args['meals']:
+                        meal = Meal.query.get(meal_id)
+                        if meal:
+                            self.meals.append(meal)
+                elif hasattr(self, key):
+                    setattr(self, key, args[key])
+
+        return modified
 
     def to_dict(self):
         """
