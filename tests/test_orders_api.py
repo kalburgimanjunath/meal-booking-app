@@ -5,7 +5,7 @@ import datetime
 import json
 from flask import current_app
 from tests.base_test_case import ApiTestCase
-from app.models import Order
+from app.models import Order, Menu
 
 
 class TestOrdersApiTestCase(ApiTestCase):
@@ -41,6 +41,9 @@ class TestOrdersApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_authenticated_user_can_order_meal(self):
+        """
+        tests. authenicated user can order a meal
+        """
         token = self.login_test_user('testorders2@test.com')[0]
         # create a meal by the admin
         admin = self.login_admin('ordersadmin1@test.com')[1]
@@ -174,3 +177,34 @@ class TestOrdersApiTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertTrue(isinstance(res_data['orders'], list))
+
+    def test_user_can_get_their_orders(self):
+        token, user = self.login_test_user('testorders2@test.com')
+        # create a meal by the admin
+        admin = self.login_admin('ordersadmin1@test.com')[1]
+        meal = self.add_test_meal(admin)
+        menu_id = self.add_test_menu()
+        menu = Menu.query.get(menu_id)
+
+        order = Order(total_cost=meal.price, meals=[meal],
+                      customer=user, catering=menu.catering, menu=menu,
+                      order_count=2)
+        order.save()
+
+        res = self.client().get('/api/v1/orders/{0}'.format(order.id), headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data['order']['id'], order.id)
+
+    def test_user_cannot_get_non_existent_order(self):
+        token = self.login_test_user('testorders2@test.com')[0]
+
+        res = self.client().get('/api/v1/orders/{0}'.format(100), headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res_data['error'],
+                         'Order with such id 100 doesnot exist')

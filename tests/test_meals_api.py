@@ -1,5 +1,5 @@
 from tests.base_test_case import ApiTestCase
-from app.models import Meal, User
+from app.models import Meal
 
 
 class TestMealsApiTestCase(ApiTestCase):
@@ -145,3 +145,31 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
         self.assertIn('error', data)
+
+    def test_admin_can_get_meal(self):
+        """
+        tests an admin can get a meal
+        """
+        token, user = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(user)
+        endpoint = self.meals_endpoint + '/{0}'.format(meal.id)
+        res = self.client().get(endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_data['id'], meal.id)
+
+    def test_admin_cannot_get_nonexistent_meal(self):
+        """
+        tests an admin cannot get non-existent meal
+        """
+        token = self.login_admin('admin_m1@test.com')[0]
+        endpoint = self.meals_endpoint + '/1000'
+        res = self.client().get(endpoint, headers={
+            'Authorization': token
+        })
+        res_data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            res_data['error'], 'Bad request, no meal with such id exists')
