@@ -100,10 +100,14 @@ def email_type(value):
     is_valid = validate_email_type(value)
     if not is_valid:
         raise ValueError('Email is not valid')
-    user = User.query.filter_by(email=value).first()
-    if user is not None:
-        raise ValueError("Email already in use")
-    return value
+
+    value_len = len(value)
+    if value_len >= 6 and value_len <= 36:
+        user = User.query.filter_by(email=value).first()
+        if user is not None:
+            raise ValueError("Email already in use")
+        return value
+    raise ValueError('Email must be between 6 and 36 characters')
 
 
 def is_list(value):
