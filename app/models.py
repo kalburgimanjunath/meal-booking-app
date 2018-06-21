@@ -230,6 +230,7 @@ class Menu(BaseModel):
                         if meal:
                             self.meals.append(meal)
                 elif hasattr(self, key):
+                    modified = True
                     setattr(self, key, args[key])
 
         return modified
@@ -274,6 +275,18 @@ class Meal(BaseModel):
             'description': self.description,
             'price': self.price
         }
+
+    def modify(self, args):
+        """
+        modifies self, setting attributes
+        """
+        modified = False
+        for key in args:
+            if args[key] is not None:
+                if hasattr(self, key):
+                    modified = True
+                    setattr(self, key, args[key])
+        return modified
 
 
 order_meals = db.Table('order_meals',
