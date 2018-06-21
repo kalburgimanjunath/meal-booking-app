@@ -4,7 +4,7 @@ Module contains API resources for authentication
 from flask_restplus import Resource, reqparse, fields
 from ..models import User, Catering, Role
 from .import api
-from .common import str_type, email_type
+from .common import str_type, email_type, is_str_len_greater_than
 
 
 LOGIN_MODAL = api.model('login', {
@@ -35,6 +35,11 @@ class Register(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
+
+        if is_str_len_greater_than(args['email'], 36):
+            return {
+                'error': 'Email is too long should be between 6 and 36 characters'
+            }, 400
 
         user = User(name=args['name'], email=args['email'],
                     password=args['password'])
@@ -71,6 +76,11 @@ class RegisterBusiness(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
+        if is_str_len_greater_than(args['email'], 36):
+            return {
+                'error': 'Email is too long should be between 6 and 36 characters'
+            }, 400
+
         role = Role.query.filter_by(name='Admin').first()
         user = User(name=args['name'], email=args['email'],
                     password=args['password'], role=role)
