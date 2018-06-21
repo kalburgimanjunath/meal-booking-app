@@ -1,7 +1,6 @@
 """
 Module contains API resource parsers
 """
-import werkzeug
 from flask_restplus import reqparse
 from .common import str_type, edit_menu_date_type, menu_date_type
 

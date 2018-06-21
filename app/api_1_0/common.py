@@ -9,6 +9,15 @@ from flask import g
 from ..models import Meal, User, Menu
 
 
+def is_str_len_greater_than(value, char_number):
+    """
+    checks if email is 
+    """
+    if len(value) > char_number:
+        return True
+    return False
+
+
 def menu_date_type(value):
     """
     validates menu date and ensures only one menu is created for a date
@@ -100,14 +109,10 @@ def email_type(value):
     is_valid = validate_email_type(value)
     if not is_valid:
         raise ValueError('Email is not valid')
-
-    value_len = len(value)
-    if value_len >= 6 and value_len <= 36:
-        user = User.query.filter_by(email=value).first()
-        if user is not None:
-            raise ValueError("Email already in use")
-        return value
-    raise ValueError('Email must be between 6 and 36 characters')
+    user = User.query.filter_by(email=value).first()
+    if user is not None:
+        raise ValueError("Email already in use")
+    return value
 
 
 def is_list(value):
@@ -136,7 +141,9 @@ def validate_meals_list(meals):
 
     for meal_id in meals:
         try:
-            meal = Meal.query.filter_by(id=int(meal_id)).first()
+            catering = g.current_user.catering
+            meal = Meal.query.filter_by(id=int(meal_id)).filter_by(
+                catering=catering).first()
             if not meal:
                 return {
                     'errors': {

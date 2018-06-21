@@ -3,13 +3,21 @@ Module contains API resource for exposing catering menus
 """
 
 from datetime import datetime
-from flask_restplus import Resource
+from flask_restplus import Resource, fields
 from flask import g
 from .decorators import authenticate, admin_required
 # from ..utils import save_image
 from . import api
 from . import parsers
+from .common import validate_meals_list
 from ..models import Menu, Meal
+
+MENU_MODAL = api.model('Menu', {
+    'title': fields.String('Meal title'),
+    'date': fields.String('Menu date yyyy-mm-dd'),
+    'description': fields.String('Meal Description'),
+    'meals': fields.String('[]')
+})
 
 
 class MenusResource(Resource):
@@ -50,7 +58,7 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(parsers.menu_modal)
+    @api.expect(MENU_MODAL)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
@@ -63,6 +71,10 @@ class MenuResource(Resource):
         menu = Menu(title=args['title'], description=args['description'],
                     menu_date=args['date'], catering=user.catering)
         meals = args['meals']
+        validation_response = validate_meals_list(args['meals'])
+        if validation_response:
+            return validation_response, 400
+
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
             if meal:
@@ -92,7 +104,7 @@ class SpecificMenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(parsers.edit_menu_modal)
+    @api.expect(MENU_MODAL)
     @api.header('Authorization', type=str, description='Authentication token')
     def put(self, menu_id):
         """

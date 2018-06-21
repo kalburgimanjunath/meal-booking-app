@@ -5,7 +5,7 @@ from flask_restplus import Resource, reqparse, fields
 from flask import g
 from ..models import Meal
 from .decorators import authenticate, admin_required
-from .common import str_type
+from .common import str_type, price_type
 from . import api
 
 MEAL_MODAL = api.model('Meal', {
@@ -43,7 +43,7 @@ class MealsResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('title', type=str_type,
                             required=True, help='Title field is required')
-        parser.add_argument('price', type=int, required=True)
+        parser.add_argument('price', type=price_type, required=True)
         parser.add_argument('description', type=str)
 
         args = parser.parse_args()
@@ -92,16 +92,18 @@ class MealResource(Resource):
                 'error': 'Bad request, no meal with such id exists'
             }, 400
         parser = reqparse.RequestParser()
-        parser.add_argument('title', type=str_type,
-                            required=True, help='Title field is required')
-        parser.add_argument('price', type=int, required=True)
+        parser.add_argument('title', type=str)
+        parser.add_argument('price', type=price_type)
         parser.add_argument('description', type=str)
         args = parser.parse_args()
 
-        meal.title = args['title']
-        meal.price = args['price']
-        meal.description = args['description']
-        meal.save()
+        modified = meal.modify(args)
+        if modified:
+            meal.save()
+        else:
+            return {
+                'error': 'No fields specified to be modified'
+            }, 400
         return meal.to_dict(), 200
 
     @authenticate
