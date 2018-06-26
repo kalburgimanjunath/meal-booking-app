@@ -27,7 +27,7 @@ class AuthenticationTestCase(ApiTestCase):
         })
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 401)
-        self.assertEqual(res_data['error'], 'Authorization failed try again')
+        self.assertEqual(res_data['message'], 'Authorization failed try again')
 
     def test_api_cannot_register_user_with_empty_password(self):
         self.test_user['password'] = ''

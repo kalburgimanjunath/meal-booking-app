@@ -2,17 +2,17 @@
 Module contains Api resources for exposing orders
 """
 import datetime
-from flask import g, current_app, request
-from flask_restplus import Resource, reqparse, fields
+from flask import g, current_app
+from flask_restplus import Resource, reqparse, fields, abort
 from ..models import Order, Meal, Menu
 from .decorators import authenticate, admin_required
 from . import api
 from .common import validate_meals_list, type_menu_id
 
 ORDER_MODEL = api.model('order', {
-    'meals': fields.String('[]'),
-    'cateringId': fields.Integer('cateringId'),
-    'menuId': fields.Integer('menuId')
+    'meals': fields.List(fields.Integer),
+    'orderCount': fields.Integer(min=1),
+    'menuId': fields.Integer()
 })
 
 
@@ -30,16 +30,16 @@ class OrderResource(Resource):
         order = Order.query.filter_by(
             customer=user).filter_by(id=order_id).first()
         if not order:
-            return {
-                'error': 'Order with such id {} doesnot exist'.format(order_id)
-            }, 400
+            abort(
+                code=400, message='Order with such id {} doesnot exist'.format(order_id)
+            )
 
         return {
             'order': order.to_dict()
         }, 200
 
     @authenticate
-    @api.expect(ORDER_MODEL)
+    @api.expect(ORDER_MODEL, validate=True)
     @api.header('Authorization', type=str, description='Authentication token')
     def put(self, order_id):
         """
@@ -49,19 +49,19 @@ class OrderResource(Resource):
         order = Order.query.filter_by(
             customer=user).filter_by(id=order_id).first()
         if not order:
-            return {
-                'error': 'Order with such id {} doesnot exist'.format(order_id)
-            }, 400
+            abort(
+                code=400, message='Order with such id {} doesnot exist'.format(order_id))
         if order.is_expired():
-            return {
-                'error': 'Order expired and cannot be modify it'
-            }, 400
+            abort(code=400, message='Order expired and cannot be modify it')
 
-        meals = request.json.get('meals', '')
-        order_count = request.json.get('orderCount', 1)
-        val = validate_meals_list(meals)
-        if val:
-            return val, 400
+        parser = reqparse.RequestParser()
+        parser.add_argument('menuId', type=type_menu_id)
+        parser.add_argument('meals', required=True, action='append')
+        parser.add_argument('orderCount', type=int)
+        args = parser.parse_args()
+        meals = args['meals']
+        order_count = args['orderCount']
+        validate_meals_list(meals)
 
         expires_at = datetime.datetime.now(
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
@@ -74,8 +74,8 @@ class OrderResource(Resource):
                 total_cost += meal.price
                 order.meals.append(meal)
 
-        order.total_cost = total_cost * int(order_count)
-        order.order_count = int(order_count)
+        order.total_cost = total_cost * order_count
+        order.order_count = order_count
         order.save()
         return {
             'order': order.to_dict()
@@ -99,24 +99,23 @@ class OrdersResource(Resource):
         }
 
     @authenticate
-    @api.expect(ORDER_MODEL)
+    @api.expect(ORDER_MODEL, validate=True)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
         Allows a user to place an order to catering for food.
         """
         customer = g.current_user
-        meals = request.json.get('meals', '')
-        order_count = request.json.get('orderCount', 1)
+
         parser = reqparse.RequestParser()
-        parser.add_argument('menuId', type=type_menu_id,
-                            help='menu id is required', required=True)
+        parser.add_argument('menuId', type=type_menu_id, required=True)
+        parser.add_argument('meals', required=True, action='append')
+        parser.add_argument('orderCount', required=True, type=int)
         args = parser.parse_args()
         menu = Menu.query.filter_by(id=args['menuId']).first()
-
-        val = validate_meals_list(meals)
-        if val:
-            return val, 400
+        meals = args['meals']
+        order_count = args.get('orderCount', 1)
+        validate_meals_list(meals)
 
         order_meals = []
         total_cost = 0
@@ -126,10 +125,10 @@ class OrdersResource(Resource):
             if meal:
                 total_cost += meal.price
                 order_meals.append(meal)
-        total_cost = total_cost * int(order_count)
+        total_cost = total_cost * order_count
         order = Order(total_cost=total_cost, meals=order_meals,
                       customer=customer, catering=menu.catering, menu=menu,
-                      order_count=int(order_count))
+                      order_count=order_count)
         order.save()
         return {
             'order': order.to_dict()
@@ -141,6 +140,7 @@ class MyOrderResource(Resource):
     Resource exposes a customer's orders as an endpoint.
     """
     @authenticate
+    @api.header('Authorization', type=str, description='Authentication token')
     def get(self):
         """
         Allows a customer to get thier previous orders

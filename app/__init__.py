@@ -13,9 +13,6 @@ def create_application(config_name):
 
     db.init_app(app)
 
-    from .main import main as main_bp
-    app.register_blueprint(main_bp)
-
-    from .api_1_0 import api_bp
+    from .api import api_bp
     app.register_blueprint(api_bp, url_prefix='/api/v1')
     return app
