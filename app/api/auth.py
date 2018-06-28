@@ -24,7 +24,7 @@ class Register(Resource):
     """
     Register. resource for registering a user
     """
-    @api.expect(REGISTER_MODAL)
+    @api.expect(REGISTER_MODAL, validate=True)
     def post(self):
         """
         Signs up a new customer
