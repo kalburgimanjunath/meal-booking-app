@@ -2,6 +2,7 @@
 Module contains decorators for protecting routes
 """
 from functools import wraps
+from flask_restplus import abort
 from flask import g, request
 from ..models import User
 
@@ -19,12 +20,8 @@ def authenticate(func):
                 if user:
                     g.current_user = user
                     return func(*args, **kwargs)
-                return {
-                    'error': 'Authorization failed try again'
-                }, 401
-        return {
-            'error': 'No Bearer token in Authorisation header'
-        }, 401
+                abort(code=401, message='Authorization failed try again')
+        abort(code=401, message='No Bearer token in Authorisation header')
     return wrapper
 
 
@@ -35,8 +32,6 @@ def admin_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         if not g.current_user.is_administrator():
-            return {
-                'error': '403 forbidden access is denied'
-            }, 403
+            abort(code=403, message='403 forbidden access is denied')
         return func(*args, **kwargs)
     return decorated_function

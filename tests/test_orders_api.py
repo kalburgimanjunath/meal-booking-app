@@ -33,13 +33,6 @@ class TestOrdersApiTestCase(ApiTestCase):
         })
         self.assertEqual(res.status_code, 200)
 
-    def test_unauthenticated_user_cannot_order_meal(self):
-        """
-        Test unathenticated user cannot order for a meal
-        """
-        res = self.client().post(self.orders_endpoint, data={'meals': []})
-        self.assertEqual(res.status_code, 401)
-
     def test_authenticated_user_can_order_meal(self):
         """
         tests. authenicated user can order a meal
@@ -57,7 +50,7 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Content-Type': 'application/json'
             },
             data=json.dumps(
-                {'meals': [meal.id], 'cateringId': admin.catering.id,
+                {'meals': [meal.id], 'orderCount': 1,
                  'menuId': menu_id})
         )
         self.assertEqual(res.status_code, 201)
@@ -71,7 +64,7 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps({'meals': meals})
+            data=json.dumps({'meals': meals, 'orderCount': 1})
         )
         self.assertEqual(res.status_code, 400)
 
@@ -118,11 +111,11 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps({'meals': [meal.id]})
+            data=json.dumps({'meals': [meal.id], 'orderCount': 1})
         )
         self.assertEqual(res.status_code, 400)
         res_data = self.get_response_data(res)
-        self.assertIn('error', res_data)
+        self.assertIn('message', res_data)
 
     def test_user_cannot_make_order_non_existent_meals(self):
         token = self.login_test_user('testorders6@test.com')[0]
@@ -139,13 +132,13 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Content-Type': 'application/json'
             },
             data=json.dumps(
-                {'meals': meals, 'cateringId': admin.catering.id,
+                {'meals': meals, 'orderCount': 1,
                  'menuId': menu_id})
         )
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
         self.assertEqual('No meal exists with id: 100',
-                         res_data['errors']['meals'])
+                         res_data['message'])
 
     def test_user_cannot_make_order_without_meals(self):
         token = self.login_test_user('testorders7@test.com')[0]
@@ -161,11 +154,11 @@ class TestOrdersApiTestCase(ApiTestCase):
                 'Content-Type': 'application/json'
             },
             data=json.dumps({'meals': meals, 'menuId': menu_id,
-                             'cateringId': admin.catering.id})
+                             'orderCount': 1})
         )
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
-        self.assertEqual('List of meals cannot be empty',
+        self.assertEqual('Missing required parameter in the JSON body or the post body or the query string',
                          res_data['errors']['meals'])
 
     def test_user_can_access_order(self):
@@ -206,5 +199,5 @@ class TestOrdersApiTestCase(ApiTestCase):
         })
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
-        self.assertEqual(res_data['error'],
+        self.assertEqual(res_data['message'],
                          'Order with such id 100 doesnot exist')
