@@ -6,6 +6,7 @@ import datetime
 import validators
 from dateutil import parser as date_parser
 from flask import g
+from flask_restplus import abort
 from ..models import Meal, User, Menu
 
 
@@ -57,17 +58,6 @@ def str_type(value):
     return value
 
 
-def price_type(value):
-    """
-    price_type. validates price is an integer and not empty
-    """
-    if not isinstance(value, int):
-        raise ValueError("Price value must be a integer")
-    elif not value or value <= 0:
-        raise ValueError("Price cannot be less or equal to zero / empty")
-    return value
-
-
 def validate_email_type(value):
     """
     validate_email_type. validates a string is an email
@@ -106,43 +96,11 @@ def email_type(value):
     return value
 
 
-def is_list(value):
-    """
-    is_list. determines a value is of type list
-    """
-    if not isinstance(value, list):
-        return False
-    return True
-
-
 def validate_meals_list(meals):
     """
     validates a list of meals
     """
-    if not is_list(meals):
-        return {
-            'errors': {
-                'meals': 'Field meals is required and should be a JSON array'
-            }
-        }
-    elif not meals:
-        return {
-            'errors': {'meals': 'List of meals cannot be empty'}
-        }
-
     for meal_id in meals:
-        try:
-            meal = Meal.query.filter_by(id=int(meal_id)).first()
-            if not meal:
-                return {
-                    'errors': {
-                        'meals': 'No meal exists with id: {}'.format(meal_id)
-                    }
-                }
-        except ValueError:
-            return {
-                'error': {
-                    'meals': 'Values in meals field must  be integer ids of meals'  # noqa
-                }
-            }
-    return None
+        meal = Meal.query.filter_by(id=meal_id).first()
+        if not meal:
+            abort(code=400, message='No meal exists with id: {}'.format(meal_id))

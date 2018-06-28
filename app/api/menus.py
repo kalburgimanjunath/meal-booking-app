@@ -3,13 +3,20 @@ Module contains API resource for exposing catering menus
 """
 
 from datetime import datetime
-from flask_restplus import Resource
+from flask_restplus import Resource, fields, abort
 from flask import g
 from .decorators import authenticate, admin_required
-# from ..utils import save_image
 from . import api
 from . import parsers
+from .common import validate_meals_list
 from ..models import Menu, Meal
+
+MENU_MODAL = api.model('Menu', {
+    'title': fields.String(max_length=64),
+    'date': fields.Date(),
+    'description': fields.String(max_length=200),
+    'meals': fields.List(fields.Integer)
+})
 
 
 class MenusResource(Resource):
@@ -36,8 +43,7 @@ class MenuResource(Resource):
     """
      Exposes a menu as a resource
     """
-    # @authenticate
-    @api.header('Authorization', type=str, description='Authentication token')
+
     def get(self):
         """
         Allows a customer to get a specific day menu
@@ -50,7 +56,7 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(parsers.menu_modal)
+    @api.expect(MENU_MODAL, validate=True)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
@@ -63,6 +69,7 @@ class MenuResource(Resource):
         menu = Menu(title=args['title'], description=args['description'],
                     menu_date=args['date'], catering=user.catering)
         meals = args['meals']
+        validate_meals_list(meals)
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
             if meal:
@@ -86,13 +93,11 @@ class SpecificMenuResource(Resource):
             return {
                 'menu': menu.to_dict()
             }
-        return {
-            'errors': 'Requested menu with id {} does not exist'.format(menu_id)
-        }, 400
+        abort(code=400, message='Requested menu with id {} does not exist'.format(menu_id))
 
     @authenticate
     @admin_required
-    @api.expect(parsers.edit_menu_modal)
+    @api.expect(MENU_MODAL, validate=True)
     @api.header('Authorization', type=str, description='Authentication token')
     def put(self, menu_id):
         """
@@ -101,18 +106,15 @@ class SpecificMenuResource(Resource):
         menu = Menu.query.filter_by(id=menu_id).filter_by(
             catering=g.current_user.catering).first()
         if not menu:
-            return {
-                'error': 'menu with id {} does not exist'.format(menu_id)
-            }, 400
+            abort(code=400, message='menu with id {} does not exist'.format(menu_id))
         args = parsers.edit_menu_modal.parse_args()
+        if args.get('meals', None):
+            validate_meals_list(args["meals"])
         modified = menu.modify(args)
         if modified:
             menu.save()
-        else:
-            return {
-                'error': 'No fields specified to be modified'
-            }, 400
-        return menu.to_dict(), 200
+            return menu.to_dict(), 200
+        abort(code=400, message='No field(s) specified to be modified')
 
     @authenticate
     @admin_required
@@ -126,8 +128,9 @@ class SpecificMenuResource(Resource):
         if menu:
             menu.delete()
             return {
-                'status': 'Menu deleted successfully'
+                'status': 'ok',
+                'message': 'Menu deleted successfully'
             }, 200
-        return {
-            'error': 'Menu with id {0} doesnot exist'.format(menu_id)
-        }, 400
+        abort(
+            code=400, message='Menu with id {0} doesnot exist'.format(menu_id)
+        )

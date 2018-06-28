@@ -1,3 +1,4 @@
+import json
 from tests.base_test_case import ApiTestCase
 from app.models import Meal
 
@@ -12,7 +13,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 401)
         data = self.get_response_data(res)
         self.assertEqual(
-            'No Bearer token in Authorisation header', data['error'])
+            'No Bearer token in Authorisation header', data['message'])
 
     def test_only_admin_can_access_meals(self):
         # use test user
@@ -21,7 +22,7 @@ class TestMealsApiTestCase(ApiTestCase):
             'Authorization': token})
         self.assertEqual(res.status_code, 403)
         data = self.get_response_data(res)
-        self.assertEqual('403 forbidden access is denied', data['error'])
+        self.assertEqual('403 forbidden access is denied', data['message'])
 
     def test_admin_can_access_meals(self):
         token = self.login_admin('s@admin.com')[0]
@@ -37,32 +38,35 @@ class TestMealsApiTestCase(ApiTestCase):
         res = self.client().post(
             self.meals_endpoint,
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={
+            data=json.dumps({
                 'title': 'Beef with posho',
                 'price': 1000,
                 'description': 'lorem ispunm'
-            }
+            })
         )
         self.assertEqual(res.status_code, 403)
         data = self.get_response_data(res)
-        self.assertEqual('403 forbidden access is denied', data['error'])
+        self.assertEqual('403 forbidden access is denied', data['message'])
 
     def test_admin_can_post_meal(self):
         token = self.login_admin('self@admin.com')[0]
         res = self.client().post(
             self.meals_endpoint,
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={
+            data=json.dumps({
                 'title': 'Beef with matooke',
                 'price': 10000,
                 'description': 'lorem ispunm'
-            }
+            })
         )
         data = self.get_response_data(res)
+
         self.assertEqual(res.status_code, 201)
         self.assertIn('id', data)
 
@@ -75,16 +79,18 @@ class TestMealsApiTestCase(ApiTestCase):
         res = self.client().put(
             self.meals_endpoint + '/1',
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={
+            data=json.dumps({
                 'title': 'meal option121',
                 'price': 10000,
                 'description': 'lorem ispum'
-            }
+            })
         )
-        self.assertEqual(res.status_code, 200)
+
         data = self.get_response_data(res)
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(1, data['id'])
 
     def test_admin_can_delete_meal(self):
@@ -114,9 +120,9 @@ class TestMealsApiTestCase(ApiTestCase):
         )
         self.assertEqual(res.status_code, 403)
         data = self.get_response_data(res)
-        self.assertEqual('403 forbidden access is denied', data['error'])
+        self.assertEqual('403 forbidden access is denied', data['message'])
 
-    def test_admin_cannot_delete_that_doesnot_exist(self):
+    def test_admin_cannot_delete_meal_that_doesnot_exist(self):
         token = self.login_admin('admin@a.com')[0]
         res = self.client().delete(
             self.meals_endpoint + '/200',
@@ -126,25 +132,26 @@ class TestMealsApiTestCase(ApiTestCase):
         )
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
-        self.assertIn('error', data)
+        self.assertEqual('No meal with such id 200 exists', data['message'])
 
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
         token = self.login_admin('admin@catering.com')[0]
         res = self.client().put(
             self.meals_endpoint + '/10000',
             headers={
-                'Authorization': token
+                'Authorization': token,
+                'Content-Type': 'application/json'
             },
-            data={
+            data=json.dumps({
                 'title': 'meal option121',
                 'price': 10000,
                 'description': 'lorem ispum'
-            }
+            })
         )
 
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
-        self.assertIn('error', data)
+        self.assertEqual('No meal with such id 10000 exists', data['message'])
 
     def test_admin_can_get_meal(self):
         """
@@ -172,4 +179,4 @@ class TestMealsApiTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(
-            res_data['error'], 'Bad request, no meal with such id exists')
+            res_data['message'], 'No meal with such id 1000 exists')

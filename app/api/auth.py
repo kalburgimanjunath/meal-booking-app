@@ -2,20 +2,21 @@
 Module contains API resources for authentication
 """
 from flask_restplus import Resource, reqparse, fields
+from flask import request
+from .common import email_type, str_type
 from ..models import User, Catering, Role
 from .import api
-from .common import str_type, email_type
 
 
 LOGIN_MODAL = api.model('login', {
-    'email': fields.String('Email.'),
-    'password': fields.String('Password')
+    'email': fields.String(),
+    'password': fields.String(max_length=36)
 })
 
 REGISTER_MODAL = api.model('register', {
-    'name': fields.String('Your Name'),
-    'email': fields.String('Your Email'),
-    'password': fields.String('Your Password')
+    'name': fields.String(max_length=64),
+    'email': fields.String(max_length=64),
+    'password': fields.String(max_length=36, pattern='[A-Za-z0-9@#$%^&+=]{6,}')
 })
 
 
@@ -35,7 +36,6 @@ class Register(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
-
         user = User(name=args['name'], email=args['email'],
                     password=args['password'])
         user.save()
@@ -43,11 +43,11 @@ class Register(Resource):
 
 
 SIGNUP_BUSINESS = api.model('business_signup', {
-    'businessAddress': fields.String('Your business Address'),
-    'businessName': fields.String('Your business name'),
-    'email': fields.String('Your email'),
-    'name': fields.String('Your Name'),
-    'password': fields.String('Your password')
+    'businessAddress': fields.String(max_length=64),
+    'businessName': fields.String(max_length=64),
+    'email': fields.String(max_length=64),
+    'name': fields.String(max_length=64),
+    'password': fields.String(max_length=36, pattern='[A-Za-z0-9@#$%^&+=]{8,}')
 })
 
 
@@ -55,7 +55,7 @@ class RegisterBusiness(Resource):
     """
     RegisterBusiness. resource for registering a business
     """
-    @api.expect(SIGNUP_BUSINESS)
+    @api.expect(SIGNUP_BUSINESS, validate=True)
     def post(self):
         """
         Signs up a new business
@@ -88,14 +88,13 @@ class Login(Resource):
     """
     Class Login exposes login functionality in form of a resource
     """
-    @api.expect(LOGIN_MODAL)
+    @api.expect(LOGIN_MODAL, validate=True)
     def post(self):
         """
          Handles post requests for logging in a user
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('email', type=str_type, required=True,
-                            help='Email field is required')
+        parser.add_argument('email', type=str_type, required=True)
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
