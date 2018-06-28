@@ -16,7 +16,7 @@ LOGIN_MODAL = api.model('login', {
 REGISTER_MODAL = api.model('register', {
     'name': fields.String(max_length=64),
     'email': fields.String(max_length=64),
-    'password': fields.String(max_length=36, pattern='[A-Za-z0-9@#$%^&+=]{6,}')
+    'password': fields.String(max_length=36)
 })
 
 
