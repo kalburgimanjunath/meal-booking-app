@@ -8,13 +8,19 @@ class AuthenticationTestCase(ApiTestCase):
     Test for authentication endpoints
     """
 
-    def test_api_cannot_register_user_with_empty_email(self):
-        self.test_user['email'] = ''
+    def set_empty_field(self, field):
+        self.test_user[field] = ''
         res = self.make_post_request(
             '/api/v1/auth/signup', self.test_user)
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
         self.assertIn('errors', data)
+
+    def test_api_cannot_register_user_with_empty_email(self):
+        self.set_empty_field('email')
+
+    def test_api_cannot_register_user_with_empty_password(self):
+        self.set_empty_field('password')
 
     def test_wrong_token_doesnot_authenticated(self):
         s = Serializer('-secret', expires_in=360000)
@@ -28,14 +34,6 @@ class AuthenticationTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res_data['message'], 'Authorization failed try again')
-
-    def test_api_cannot_register_user_with_empty_password(self):
-        self.test_user['password'] = ''
-        res = self.make_post_request(
-            '/api/v1/auth/signup', self.test_user)
-        self.assertEqual(res.status_code, 400)
-        data = self.get_response_data(res)
-        self.assertIn('errors', data)
 
     def test_api_can_register_user(self):
         res = self.make_post_request(
