@@ -19,38 +19,22 @@ class ApiTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
         Role.insert_roles()
-
-        self.user_register_endpoint = '/api/v1/auth/signup'
-        self.user_login_endpoint = '/api/v1/auth/login'
-        self.business_register_endpoint = '/api/v1/auth/business/signup'
         self.meals_endpoint = '/api/v1/meals'
         self.menu_endpoint = '/api/v1/menu'
         self.orders_endpoint = '/api/v1/orders'
         self.myorders_endpoint = 'api/v1/myorders'
         self.get_menus_endpoint = 'api/v1/menus'
-
         self.test_user = {
             'email': 'solo@andela.com',
             'name': 'Solomon Nsubuga',
             'password': 'AwesomeAndela'
         }
-
         self.test_login_user = {
             'email': 'solo.nsubuga@andela.com',
             'password': 'AwesomeAndela'
         }
-
         self.user = User(name='solo', email='solo@gmail.com',
                          password='test')
-
-        self.test_business_user = {
-            'email': 'solo@gmail.com',
-            'name': 'Solo Dev',
-            'password': 'AwesomeAndela',
-            'businessAddress': 'Kampala',
-            'businessName': 'Cater1'
-        }
-
         self.test_admin_user = {
             'email': 'solo@gmail.com',
             'password': 'AwesomeAndela',
@@ -77,8 +61,8 @@ class ApiTestCase(unittest.TestCase):
         business = Catering(name='biz', address='kla', admin=u)
         business.save()
         response = self.make_post_request(
-            self.user_login_endpoint, {'email': email,
-                                       'password': 'admin'})
+            '/api/v1/auth/login', {'email': email,
+                                   'password': 'admin'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
@@ -94,8 +78,8 @@ class ApiTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.commit()
         response = self.make_post_request(
-            self.user_login_endpoint, {'email': email,
-                                       'password': 'test'})
+            '/api/v1/auth/login', {'email': email,
+                                   'password': 'test'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')

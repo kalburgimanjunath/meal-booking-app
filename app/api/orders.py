@@ -3,11 +3,12 @@ Module contains Api resources for exposing orders
 """
 import datetime
 from flask import g, current_app
-from flask_restplus import Resource, reqparse, fields, abort
+from flask_restplus import Resource, fields, abort
 from ..models import Order, Meal, Menu
 from .decorators import authenticate, admin_required
 from . import api
-from .common import validate_meals_list, type_menu_id
+from .common import validate_meals_list
+from .parsers import orders_parser, edit_orders_parser
 
 ORDER_MODEL = api.model('order', {
     'meals': fields.List(fields.Integer),
@@ -53,12 +54,7 @@ class OrderResource(Resource):
                 code=400, message='Order with such id {} doesnot exist'.format(order_id))
         if order.is_expired():
             abort(code=400, message='Order expired and cannot be modify it')
-
-        parser = reqparse.RequestParser()
-        parser.add_argument('menuId', type=type_menu_id)
-        parser.add_argument('meals', required=True, action='append')
-        parser.add_argument('orderCount', type=int)
-        args = parser.parse_args()
+        args = edit_orders_parser.parse_args()
         meals = args['meals']
         order_count = args['orderCount']
         validate_meals_list(meals)
@@ -82,9 +78,9 @@ class OrderResource(Resource):
         }, 200
 
 
-class OrdersResource(Resource):
+class CustomerOrderResource(Resource):
     """
-    Exposes an orders as resources
+    Exposes orders as resources
     """
     @authenticate
     @admin_required
@@ -107,19 +103,13 @@ class OrdersResource(Resource):
         """
         customer = g.current_user
 
-        parser = reqparse.RequestParser()
-        parser.add_argument('menuId', type=type_menu_id, required=True)
-        parser.add_argument('meals', required=True, action='append')
-        parser.add_argument('orderCount', required=True, type=int)
-        args = parser.parse_args()
+        args = orders_parser.parse_args()
         menu = Menu.query.filter_by(id=args['menuId']).first()
         meals = args['meals']
         order_count = args.get('orderCount', 1)
         validate_meals_list(meals)
-
         order_meals = []
         total_cost = 0
-
         for meal_id in meals:
             meal = Meal.query.get(meal_id)
             if meal:

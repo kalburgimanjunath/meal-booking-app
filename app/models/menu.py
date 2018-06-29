@@ -52,9 +52,6 @@ class Menu(BaseModel):
                         meal = Meal.query.get(meal_id)
                         if meal:
                             self.meals.append(meal)
-                elif key == 'date':
-                    self.menu_date = args['date']
-                    modified = True
                 elif hasattr(self, key):
                     modified = True
                     setattr(self, key, args[key])
