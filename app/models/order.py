@@ -5,6 +5,7 @@ import datetime
 from flask import current_app
 from .. import db
 from . base_model import BaseModel
+from .meal import Meal
 
 
 order_meals = db.Table('order_meals',
@@ -42,6 +43,15 @@ class Order(BaseModel):
         if self.expires_at and datetime.datetime.now() - self.expires_at > time_diff:
             return True
         return False
+
+    def add_meals(self, meals):
+        total_cost = 0
+        for meal_id in meals:
+            meal = Meal.query.get(int(meal_id))
+            if meal:
+                total_cost += meal.price
+                self.meals.append(meal)
+        return total_cost
 
     def to_dict(self):
         """

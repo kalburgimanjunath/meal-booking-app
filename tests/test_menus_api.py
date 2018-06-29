@@ -24,7 +24,7 @@ class TestMenusApiTestCase(ApiTestCase):
         token = self.login_test_user('testm1@test.com')[0]
         meal = self.add_test_meal()
         menu = {
-            "date": "2018-04-26",
+            "menu_date": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id]
@@ -41,26 +41,11 @@ class TestMenusApiTestCase(ApiTestCase):
         res_data = self.get_response_data(res)
         self.assertEqual('403 forbidden access is denied', res_data['message'])
 
-    # def test_unauthenticated_admin_cannot_set_menu(self):
-    #     meal = self.add_test_meal()
-    #     menu = {
-    #         "date": "2018-04-26",
-    #         "title": "Buffet ipsum",
-    #         "description": "menu lorem ispum",
-    #         "meals": [meal.id]
-    #     }
-    #     res = self.client().post(self.menu_endpoint, data=json.dumps(menu))
-    #     self.assertEqual(res.status_code, 401)
-    #     res_data = self.get_response_data(res)
-    #     print(res_data)
-    #     self.assertEqual(
-    #         'No Bearer token in Authorisation header', res_data['message'])
-
     def test_admin_can_set_menu(self):
         token, user = self.login_admin('admin_m1@test.com')
         meal = self.add_test_meal(user)
         menu = {
-            "date": "2018-04-26",
+            "menu_date": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id]
@@ -81,7 +66,7 @@ class TestMenusApiTestCase(ApiTestCase):
     def test_admin_cannot_set_menu_withoutmeals(self):
         token = self.login_admin('adminm2@admin.com')[0]
         menu = {
-            "date": "2018-04-26",
+            "menu_date": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": []
@@ -103,7 +88,7 @@ class TestMenusApiTestCase(ApiTestCase):
         token, user = self.login_admin('test_ad3@admin.com')
         meal = self.add_test_meal(user)
         menu = {
-            "date": "06-05-2018",
+            "menu_date": "06-05-2018",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id]
@@ -160,7 +145,7 @@ class TestMenusApiTestCase(ApiTestCase):
         token, user = self.login_admin('admin_m1@test.com')
         meal = self.add_test_meal(user)
         menu = {
-            "date": "2018-04-27",
+            "menu_date": "2018-04-27",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id]

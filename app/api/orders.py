@@ -58,18 +58,11 @@ class OrderResource(Resource):
         meals = args['meals']
         order_count = args['orderCount']
         validate_meals_list(meals)
-
         expires_at = datetime.datetime.now(
         ) + datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
         order.expires_at = expires_at
-        total_cost = 0
         order.meals.clear()  # remove all meal items from the array
-        for meal_id in meals:
-            meal = Meal.query.get(int(meal_id))
-            if meal:
-                total_cost += meal.price
-                order.meals.append(meal)
-
+        total_cost = order.add_meals(meals)
         order.total_cost = total_cost * order_count
         order.order_count = order_count
         order.save()

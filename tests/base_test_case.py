@@ -116,7 +116,7 @@ class ApiTestCase(unittest.TestCase):
         token, user = self.login_admin('admin_m1@test.com')
         meal = self.add_test_meal(user)
         menu = {
-            "date": "2018-04-26",
+            "menu_date": "2018-04-26",
             "title": "Buffet ipsum",
             "description": "menu lorem ispum",
             "meals": [meal.id]
