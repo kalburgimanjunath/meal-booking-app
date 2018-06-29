@@ -110,18 +110,6 @@ class TestMealsApiTestCase(ApiTestCase):
         data = self.get_response_data(res)
         self.assertIn('message', data)
 
-    def test_customer_cannot_delete_meal(self):
-        token = self.login_test_user('test@self.com')[0]
-        res = self.client().delete(
-            self.meals_endpoint + '/2',
-            headers={
-                'Authorization': token
-            }
-        )
-        self.assertEqual(res.status_code, 403)
-        data = self.get_response_data(res)
-        self.assertEqual('403 forbidden access is denied', data['message'])
-
     def test_admin_cannot_delete_meal_that_doesnot_exist(self):
         token = self.login_admin('admin@a.com')[0]
         res = self.client().delete(

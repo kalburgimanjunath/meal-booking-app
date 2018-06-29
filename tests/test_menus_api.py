@@ -7,6 +7,19 @@ class TestMenusApiTestCase(ApiTestCase):
     Tests for menus api endpoints
     """
 
+    def setUp(self):
+        super(TestMenusApiTestCase, self).setUp()
+        token, user = self.login_admin('admin_m1@test.com')
+        self.token = token
+        self.user = user
+        meal = self.add_test_meal(user)
+        self.menu = {
+            "menu_date": "2018-04-26",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id]
+        }
+
     def test_authenticated_user_can_access_menu(self):
         """
         tests unauthenticated user can access menus
@@ -42,21 +55,14 @@ class TestMenusApiTestCase(ApiTestCase):
         self.assertEqual('403 forbidden access is denied', res_data['message'])
 
     def test_admin_can_set_menu(self):
-        token, user = self.login_admin('admin_m1@test.com')
-        meal = self.add_test_meal(user)
-        menu = {
-            "menu_date": "2018-04-26",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": [meal.id]
-        }
+
         res = self.client().post(
             self.menu_endpoint,
             headers={
-                'Authorization': token,
+                'Authorization': self.token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps(menu)
+            data=json.dumps(self.menu)
         )
 
         self.assertEqual(res.status_code, 201)
@@ -85,21 +91,15 @@ class TestMenusApiTestCase(ApiTestCase):
         self.assertIn('errors', res_data)
 
     def test_admin_cannot_set_menu_with_wrong_date_format(self):
-        token, user = self.login_admin('test_ad3@admin.com')
-        meal = self.add_test_meal(user)
-        menu = {
-            "menu_date": "06-05-2018",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": [meal.id]
-        }
+        # give menu wrong date
+        self.menu['menu_date'] = "06-05-2018"
         res = self.client().post(
             self.menu_endpoint,
             headers={
-                'Authorization': token,
+                'Authorization': self.token,
                 'Content-Type': 'application/json'
             },
-            data=json.dumps(menu)
+            data=json.dumps(self.menu)
         )
 
         self.assertEqual(res.status_code, 400)
