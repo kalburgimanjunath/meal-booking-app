@@ -1,7 +1,6 @@
 """
 Module contains the base model
 """
-import datetime
 from .. import db
 
 
@@ -26,3 +25,16 @@ class BaseModel(db.Model):
         """
         db.session.delete(self)
         db.session.commit()
+
+
+def make_pivot_table(name, fk_1, tb_1, fk_2, tb_2):
+    """
+    generates a pivot table.
+    """
+    table = db.Table(name,
+                     db.Column(fk_1, db.Integer, db.ForeignKey(
+                         tb_1), primary_key=True),
+                     db.Column(fk_2, db.Integer, db.ForeignKey(
+                         tb_2), primary_key=True))
+
+    return table

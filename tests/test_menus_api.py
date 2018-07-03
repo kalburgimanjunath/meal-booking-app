@@ -9,10 +9,8 @@ class TestMenusApiTestCase(ApiTestCase):
 
     def setUp(self):
         super(TestMenusApiTestCase, self).setUp()
-        token, user = self.login_admin('admin_m1@test.com')
-        self.token = token
-        self.user = user
-        meal = self.add_test_meal(user)
+        self.token, self.admin = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(self.admin)
         self.menu = {
             "menu_date": "2018-04-26",
             "title": "Buffet ipsum",
@@ -55,37 +53,21 @@ class TestMenusApiTestCase(ApiTestCase):
         self.assertEqual('403 forbidden access is denied', res_data['message'])
 
     def test_admin_can_set_menu(self):
-
-        res = self.client().post(
-            self.menu_endpoint,
-            headers={
-                'Authorization': self.token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(self.menu)
-        )
+        res = self.make_post_request(self.menu_endpoint, self.menu, headers={
+            'Authorization': self.token,
+            'Content-Type': 'application/json'
+        })
 
         self.assertEqual(res.status_code, 201)
         res_data = self.get_response_data(res)
         self.assertIn('id', res_data)
 
     def test_admin_cannot_set_menu_withoutmeals(self):
-        token = self.login_admin('adminm2@admin.com')[0]
-        menu = {
-            "menu_date": "2018-04-26",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": []
-        }
-        res = self.client().post(
-            self.menu_endpoint,
-            headers={
-                'Authorization': token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(menu)
-        )
-
+        self.menu['meals'] = []
+        res = self.make_post_request(self.menu_endpoint, self.menu, headers={
+            'Authorization': self.token,
+            'Content-Type': 'application/json'
+        })
         self.assertEqual(res.status_code, 400)
         res_data = self.get_response_data(res)
         self.assertIn('errors', res_data)

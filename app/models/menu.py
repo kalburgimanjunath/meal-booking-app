@@ -1,16 +1,12 @@
-import datetime
-from flask import current_app
+
 from dateutil import parser
 from .. import db
-from . base_model import BaseModel
+from . base_model import BaseModel, make_pivot_table
 from . meal import Meal
 
 
-menu_meals = db.Table('menu_meals',
-                      db.Column('menu_id', db.Integer, db.ForeignKey(
-                          'menus.id'), primary_key=True),
-                      db.Column('meal_id', db.Integer, db.ForeignKey(
-                          'meals.id'), primary_key=True))
+menu_meals = make_pivot_table(
+    'menu_meals', 'menu_id', 'menus.id', 'meal_id', 'meals.id')
 
 
 class Menu(BaseModel):

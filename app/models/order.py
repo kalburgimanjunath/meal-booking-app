@@ -4,15 +4,12 @@ Module contains the order model
 import datetime
 from flask import current_app
 from .. import db
-from . base_model import BaseModel
+from . base_model import BaseModel, make_pivot_table
 from .meal import Meal
 
 
-order_meals = db.Table('order_meals',
-                       db.Column('order_id', db.Integer, db.ForeignKey(
-                           'orders.id'), primary_key=True),
-                       db.Column('meal_id', db.Integer, db.ForeignKey(
-                           'meals.id'), primary_key=True))
+order_meals = make_pivot_table(
+    'order_meals', 'order_id', 'orders.id', 'meal_id', 'meals.id')
 
 
 class Order(BaseModel):
