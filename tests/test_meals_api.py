@@ -13,6 +13,9 @@ class TestMealsApiTestCase(ApiTestCase):
         self.admin_token, self.admin = self.login_admin('s@admin.com')
         self.user_token, self.customer_user = self.login_test_user(
             'self@tesst.com')
+        self.meal = Meal(title='lorem ipsum', price=2000,
+                         description='lorem ipsum', catering=self.admin.catering)
+        self.meal.save()
 
     def post_meal(self, token):
         res = self.client().post(
@@ -26,6 +29,17 @@ class TestMealsApiTestCase(ApiTestCase):
                 'price': 10000,
                 'description': 'lorem ispunm'
             })
+        )
+        return res
+
+    def modify_meal(self, id, data):
+        res = self.client().put(
+            self.meals_endpoint + '/{}'.format(id),
+            headers={
+                'Authorization': self.admin_token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(data)
         )
         return res
 
@@ -64,33 +78,19 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertIn('id', data)
 
     def test_admin_can_edit_meal(self):
-        meal = Meal(title='lorem ipsum', price=2000,
-                    description='lorem ipsum', catering=self.admin.catering)
-        meal.save()
-        res = self.client().put(
-            self.meals_endpoint + '/1',
-            headers={
-                'Authorization': self.admin_token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps({
-                'title': 'meal option121',
-                'price': 10000,
-                'description': 'lorem ispum'
-            })
-        )
+        res = self.modify_meal(self.meal.id, {
+            'title': 'meal option121',
+            'price': 10000,
+            'description': 'lorem ispum'
+        })
 
         data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(1, data['id'])
 
     def test_admin_can_delete_meal(self):
-        meal = Meal(title='lorem ipsum', price=2000,
-                    description='lorem ipsum', catering=self.admin.catering)
-        meal.save()
-
         res = self.client().delete(
-            self.meals_endpoint + '/{}'.format(meal.id),
+            self.meals_endpoint + '/{}'.format(self.meal.id),
             headers={
                 'Authorization': self.admin_token
             }
@@ -111,19 +111,11 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual('No meal with such id 200 exists', data['message'])
 
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
-        res = self.client().put(
-            self.meals_endpoint + '/10000',
-            headers={
-                'Authorization': self.admin_token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps({
-                'title': 'meal option121',
-                'price': 10000,
-                'description': 'lorem ispum'
-            })
-        )
-
+        res = self.modify_meal(10000, {
+            'title': 'meal detail',
+            'price': 10000,
+            'description': 'desc'
+        })
         self.assertEqual(res.status_code, 400)
         data = self.get_response_data(res)
         self.assertEqual('No meal with such id 10000 exists', data['message'])
