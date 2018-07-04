@@ -120,7 +120,7 @@ class TestMenusApiTestCase(ApiTestCase):
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
         meal = self.add_test_meal(self.admin)
-        self.menus['meals'] = [meal.id]
+        self.menu['meals'] = [meal.id]
         res = self.modify_menu(endpoint, self.admin_token, self.menu)
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
