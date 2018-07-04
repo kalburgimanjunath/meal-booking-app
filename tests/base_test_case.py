@@ -51,7 +51,7 @@ class ApiTestCase(unittest.TestCase):
             content_type='application/json')
         return res
 
-    def modify_resource(self, endpoint, data, token):
+    def modify_resource(self, endpoint, token, data):
         res = self.client().put(
             endpoint,
             headers={

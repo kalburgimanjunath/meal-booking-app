@@ -32,11 +32,6 @@ class TestMealsApiTestCase(ApiTestCase):
         )
         return res
 
-    def modify_meal(self, id, data):
-        res = self.modify_resource(
-            self.meals_endpoint + '/{}'.format(id), data, self.admin_token)
-        return res
-
     def test_unauthenticated_admin_cannot_access_meals(self):
         res = self.client().get(self.meals_endpoint)
         self.assertEqual(res.status_code, 401)
@@ -72,11 +67,14 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertIn('id', data)
 
     def test_admin_can_edit_meal(self):
-        res = self.modify_meal(self.meal.id, {
-            'title': 'meal option121',
-            'price': 10000,
-            'description': 'lorem ispum'
-        })
+        res = self.modify_resource(
+            self.meals_endpoint + '/{}'.format(self.meal.id),
+            self.admin_token,
+            {
+                'title': 'meal option121',
+                'price': 10000,
+                'description': 'lorem ispum'
+            })
 
         data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
@@ -105,7 +103,7 @@ class TestMealsApiTestCase(ApiTestCase):
         self.assertEqual('No meal with such id 200 exists', data['message'])
 
     def test_admin_cannot_edit_meal_that_doesnot_exist(self):
-        res = self.modify_meal(10000, {
+        res = self.modify_resource(self.meals_endpoint + '/{}'.format(10000), self.admin_token, {
             'title': 'meal detail',
             'price': 10000,
             'description': 'desc'

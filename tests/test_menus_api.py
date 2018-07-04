@@ -31,17 +31,6 @@ class TestMenusApiTestCase(ApiTestCase):
         )
         return res
 
-    def modify_menu(self, endpoint, token, data):
-        res = self.client().put(
-            endpoint,
-            headers={
-                'Authorization': token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(data)
-        )
-        return res
-
     def test_authenticated_user_can_access_menu(self):
         """
         tests unauthenticated user can access menus
@@ -108,7 +97,7 @@ class TestMenusApiTestCase(ApiTestCase):
         """
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
-        res = self.modify_menu(endpoint, self.admin_token, self.menu)
+        res = self.modify_resource(endpoint, self.admin_token, self.menu)
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
@@ -121,7 +110,7 @@ class TestMenusApiTestCase(ApiTestCase):
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
         meal = self.add_test_meal(self.admin)
         self.menu['meals'] = [meal.id]
-        res = self.modify_menu(endpoint, self.admin_token, self.menu)
+        res = self.modify_resource(endpoint, self.admin_token, self.menu)
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
@@ -181,7 +170,7 @@ class TestMenusApiTestCase(ApiTestCase):
         """
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
-        res = self.modify_menu(endpoint, self.admin_token, {})
+        res = self.modify_resource(endpoint, self.admin_token, {})
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data['message'],

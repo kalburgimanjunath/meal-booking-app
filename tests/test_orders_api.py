@@ -33,7 +33,7 @@ class TestOrdersApiTestCase(ApiTestCase):
 
     def modify_order(self, id, data):
         res = self.modify_resource(
-            self.orders_endpoint + '/{}'.format(id), data, self.customer_token)
+            self.orders_endpoint + '/{}'.format(id), self.customer_token, data)
         return res
 
     def test_only_admin_can_get_orders(self):
@@ -66,7 +66,8 @@ class TestOrdersApiTestCase(ApiTestCase):
         self.assertEqual(res.status_code, 201)
 
     def test_cannot_modify_non_existent_order(self):
-        res = self.modify_order(100, {'meals': [1], 'orderCount': 1})
+        res = self.modify_resource(self.orders_endpoint + '/{}'.format(
+            100), self.customer_token, {'meals': [1], 'orderCount': 1})
         self.assertEqual(res.status_code, 400)
 
     def test_user_can_modify_order(self):
@@ -78,8 +79,8 @@ class TestOrdersApiTestCase(ApiTestCase):
         order = Order(total_cost=1000, catering=self.admin.catering,
                       customer=self.customer, meals=meals, menu_id=menu_id)
         order.save()
-        res = self.modify_order(
-            order.id, {'meals': [meal.id], 'orderCount': 2})
+        res = self.modify_resource(self.orders_endpoint + '/{}'.format(
+            order.id), self.customer_token, {'meals': [meal.id], 'orderCount': 2})
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(order.id, res_data['order']['id'])
@@ -96,8 +97,8 @@ class TestOrdersApiTestCase(ApiTestCase):
         order.expires_at = datetime.datetime.now(
         ) - datetime.timedelta(minutes=current_app.config['ORDER_EXPIRES_IN'])
         order.save()
-        res = self.modify_order(
-            order.id, {'meals': [meal.id], 'orderCount': 1})
+        res = self.modify_resource(self.orders_endpoint + '/{}'.format(
+            order.id), self.customer_token, {'meals': [meal.id], 'orderCount': 1})
         self.assertEqual(res.status_code, 400)
         res_data = self.get_response_data(res)
         self.assertIn('message', res_data)
