@@ -31,6 +31,17 @@ class TestMenusApiTestCase(ApiTestCase):
         )
         return res
 
+    def modify_menu(self, endpoint, token, data):
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(data)
+        )
+        return res
+
     def test_authenticated_user_can_access_menu(self):
         """
         tests unauthenticated user can access menus
@@ -65,15 +76,7 @@ class TestMenusApiTestCase(ApiTestCase):
     def test_admin_cannot_set_menu_with_wrong_date_format(self):
         # give menu wrong date
         self.menu['menu_date'] = "06-05-2018"
-        res = self.client().post(
-            self.menu_endpoint,
-            headers={
-                'Authorization': self.admin_token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(self.menu)
-        )
-
+        res = self.post_menu(self.admin_token)
         self.assertEqual(res.status_code, 400)
         res_data = self.get_response_data(res)
         self.assertIn('errors', res_data)
@@ -105,22 +108,16 @@ class TestMenusApiTestCase(ApiTestCase):
         """
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
-        token, user = self.login_admin('admin_m1@test.com')
-        meal = self.add_test_meal(user)
-        menu = {
-            "menu_date": "2018-04-27",
-            "title": "Buffet ipsum",
-            "description": "menu lorem ispum",
-            "meals": [meal.id]
-        }
-        res = self.client().put(
-            endpoint,
-            headers={
-                'Authorization': token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(menu)
-        )
+        res = self.modify_menu(endpoint, self.admin_token, self.menu)
+
+        # res = self.client().put(
+        #     endpoint,
+        #     headers={
+        #         'Authorization': token,
+        #         'Content-Type': 'application/json'
+        #     },
+        #     data=json.dumps(menu)
+        # )
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
@@ -131,19 +128,7 @@ class TestMenusApiTestCase(ApiTestCase):
         """
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
-        token, user = self.login_admin('admin_m1@test.com')
-        meal = self.add_test_meal(user)
-        menu = {
-            "meals": [meal.id]
-        }
-        res = self.client().put(
-            endpoint,
-            headers={
-                'Authorization': token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(menu)
-        )
+        res = self.modify_menu(endpoint, self.admin_token, self.menu)
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 200)
         self.assertIn('id', res_data)
@@ -203,16 +188,7 @@ class TestMenusApiTestCase(ApiTestCase):
         """
         menu_id = self.add_test_menu()
         endpoint = '/api/v1/menu/{0}'.format(menu_id)
-        token = self.login_admin('admin_m1@test.com')[0]
-        menu = {}
-        res = self.client().put(
-            endpoint,
-            headers={
-                'Authorization': token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(menu)
-        )
+        res = self.modify_menu(endpoint, self.admin_token, {})
         res_data = self.get_response_data(res)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res_data['message'],

@@ -127,14 +127,6 @@ class ApiTestCase(unittest.TestCase):
             'Authorization': token,
             'Content-Type': 'application/json'
         })
-        # res = self.client().post(
-        #     self.menu_endpoint,
-        #     headers={
-        #         'Authorization': token,
-        #         'Content-Type': 'application/json'
-        #     },
-        #     data=json.dumps(menu)
-        # )
         res_data = self.get_response_data(res)
         return res_data['id']
 
