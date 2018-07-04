@@ -32,14 +32,8 @@ class TestOrdersApiTestCase(ApiTestCase):
         return res
 
     def modify_order(self, id, data):
-        res = self.client().put(
-            self.orders_endpoint + '/{}'.format(id),
-            headers={
-                'Authorization': self.customer_token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(data)
-        )
+        res = self.modify_resource(
+            self.orders_endpoint + '/{}'.format(id), data, self.customer_token)
         return res
 
     def test_only_admin_can_get_orders(self):

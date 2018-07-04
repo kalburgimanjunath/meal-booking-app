@@ -51,6 +51,17 @@ class ApiTestCase(unittest.TestCase):
             content_type='application/json')
         return res
 
+    def modify_resource(self, endpoint, data, token):
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(data)
+        )
+        return res
+
     def login_admin(self, email):
         """
         logins an admin test user

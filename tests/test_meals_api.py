@@ -33,14 +33,8 @@ class TestMealsApiTestCase(ApiTestCase):
         return res
 
     def modify_meal(self, id, data):
-        res = self.client().put(
-            self.meals_endpoint + '/{}'.format(id),
-            headers={
-                'Authorization': self.admin_token,
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps(data)
-        )
+        res = self.modify_resource(
+            self.meals_endpoint + '/{}'.format(id), data, self.admin_token)
         return res
 
     def test_unauthenticated_admin_cannot_access_meals(self):
