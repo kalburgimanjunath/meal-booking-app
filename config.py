@@ -1,14 +1,24 @@
+"""
+Module contains the configurations for the application
+"""
 import os
 
 
 class Config:
+    """
+    Config class
+    """
     DEBUG = True
     SECRET_KEY = os.getenv('SECRET_KEY') or 'Andela-is-awesome'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ORDER_EXPIRES_IN = 5
+    DATA_FOLDER = 'app/static'
 
     @staticmethod
     def init_app(app):
+        """
+        initialises app with the config file
+        """
         pass
 
 
@@ -19,6 +29,14 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DEV_DATABASE_URL',
         'postgresql://andela1:AnDELa@localhost/bookamealdb')
+
+
+class HerokuConfig(Config):
+    """
+    Configuration for heroku app
+    """
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    DEBUG = False
 
 
 class TestingConfig(Config):
@@ -33,6 +51,5 @@ class TestingConfig(Config):
 
 config = {
     'testing': TestingConfig,
-
     'default': DevConfig
 }

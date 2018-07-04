@@ -1,3 +1,6 @@
+"""
+This module is the base test case for allm test cases.
+"""
 import json
 import unittest
 from app import create_application, db
@@ -16,48 +19,47 @@ class ApiTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
         Role.insert_roles()
-
-        self.user_register_endpoint = '/api/v1/auth/signup'
-        self.user_login_endpoint = '/api/v1/auth/login'
-        self.business_register_endpoint = '/api/v1/auth/business/signup'
         self.meals_endpoint = '/api/v1/meals'
         self.menu_endpoint = '/api/v1/menu'
         self.orders_endpoint = '/api/v1/orders'
-
+        self.myorders_endpoint = 'api/v1/myorders'
+        self.get_menus_endpoint = 'api/v1/menus'
         self.test_user = {
             'email': 'solo@andela.com',
             'name': 'Solomon Nsubuga',
             'password': 'AwesomeAndela'
         }
-
         self.test_login_user = {
             'email': 'solo.nsubuga@andela.com',
             'password': 'AwesomeAndela'
         }
-
         self.user = User(name='solo', email='solo@gmail.com',
                          password='test')
-
-        self.test_business_user = {
-            'email': 'solo@gmail.com',
-            'name': 'Solo Dev',
-            'password': 'AwesomeAndela',
-            'businessAddress': 'Kampala',
-            'businessName': 'Cater1'
-        }
-
         self.test_admin_user = {
             'email': 'solo@gmail.com',
             'password': 'AwesomeAndela',
         }
 
-    def make_post_request(self, endpoint, data):
+    def make_post_request(self, endpoint, data, headers=None):
         """
         makes a post request
         """
+        if headers is None:
+            headers = {}
         res = self.client().post(
-            endpoint, data=json.dumps(data),
+            endpoint, headers=headers, data=json.dumps(data),
             content_type='application/json')
+        return res
+
+    def modify_resource(self, endpoint, token, data):
+        res = self.client().put(
+            endpoint,
+            headers={
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            data=json.dumps(data)
+        )
         return res
 
     def login_admin(self, email):
@@ -68,18 +70,15 @@ class ApiTestCase(unittest.TestCase):
         role = Role.query.filter_by(name='Admin').first()
         u = User(name='admin', email=email,
                  password='admin', role=role)
-        db.session.add(u)
-        db.session.commit()
+        u.save()
         business = Catering(name='biz', address='kla', admin=u)
-        db.session.add(business)
-        db.session.commit()
+        business.save()
         response = self.make_post_request(
-            self.user_login_endpoint, {'email': email,
-                                       'password': 'admin'})
+            '/api/v1/auth/login', {'email': email,
+                                   'password': 'admin'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
-        # token = 'Bearer ' + token
 
         self.assertIsNotNone(token)  # verify that we have the token
         return token, u
@@ -92,8 +91,8 @@ class ApiTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.commit()
         response = self.make_post_request(
-            self.user_login_endpoint, {'email': email,
-                                       'password': 'test'})
+            '/api/v1/auth/login', {'email': email,
+                                   'password': 'test'})
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)  # user successfully logins
         token = json_response.get('token')
@@ -107,11 +106,10 @@ class ApiTestCase(unittest.TestCase):
         """
         meal = Meal(title='lorem meal', price=10000,
                     description='lorem ipsum desc')
-        db.session.add(meal)
+        meal.save()
         meal2 = Meal(title='Beef with rice', price=1500,
                      description='lorem desc ipsum')
-        db.session.add(meal2)
-        db.session.commit()
+        meal2.save()
 
     def add_test_meal(self, user=None):
         """
@@ -121,9 +119,27 @@ class ApiTestCase(unittest.TestCase):
                     description='lorem desc ipsum')
         if user:
             meal.catering = user.catering
-        db.session.add(meal)
-        db.session.commit()
+        meal.save()
         return meal
+
+    def add_test_menu(self):
+        """
+        add_test_menu. adds mock test menu
+        """
+        token, user = self.login_admin('admin_m1@test.com')
+        meal = self.add_test_meal(user)
+        menu = {
+            "menu_date": "2018-04-26",
+            "title": "Buffet ipsum",
+            "description": "menu lorem ispum",
+            "meals": [meal.id]
+        }
+        res = self.make_post_request(self.menu_endpoint, menu, headers={
+            'Authorization': token,
+            'Content-Type': 'application/json'
+        })
+        res_data = self.get_response_data(res)
+        return res_data['id']
 
     def get_response_data(self, response):
         """
