@@ -48,7 +48,8 @@ class MealsResource(Resource):
         args = parser.parse_args()
         user = g.current_user
         meal = Meal(title=args['title'], price=args['price'],
-                    description=args['description'], catering=user.catering)
+                    description=args['description'])
+        meal.catering = user.catering
         meal.save()
         return meal.to_dict(), 201
 

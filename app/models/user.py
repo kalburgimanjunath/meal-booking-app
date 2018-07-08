@@ -79,9 +79,9 @@ class User(BaseModel):
             'isAdmin': self.is_administrator()
         }).decode('ascii')
 
-    @staticmethod
-    def get_by_email(email):
-        return User.query.filter_by(email=email).first()
+    # @staticmethod
+    # def get_by_email(email):
+    #     return User.query.filter_by(email=email).first()
 
     @staticmethod
     def verify_jwt_token(token):

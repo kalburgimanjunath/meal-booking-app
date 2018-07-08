@@ -13,14 +13,13 @@ def authenticate(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if 'Authorization' in request.headers:
-            access_token = request.headers.get('Authorization')
-            if access_token.strip(' '):
-                user = User.verify_jwt_token(access_token)
-                if user:
-                    g.current_user = user
-                    return func(*args, **kwargs)
-                abort(code=401, message='Authorization failed try again')
+        access_token = request.headers.get('Authorization', '')
+        if access_token.strip(' '):
+            user = User.verify_jwt_token(access_token)
+            if user:
+                g.current_user = user
+                return func(*args, **kwargs)
+            abort(code=401, message='Authorization failed try again')
         abort(code=401, message='No Bearer token in Authorisation header')
     return wrapper
 

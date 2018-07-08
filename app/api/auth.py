@@ -36,8 +36,10 @@ class Register(Resource):
         parser.add_argument('password', type=str_type, required=True,
                             help='Password field is required')
         args = parser.parse_args()
-        user = User(name=args['name'], email=args['email'],
-                    password=args['password'])
+        user = User()
+        user.email = args['email']
+        user.name = args['name']
+        user.password = args['password']
         user.save()
         return user.to_dict(), 201
 

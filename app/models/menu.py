@@ -1,5 +1,4 @@
-import datetime
-from flask import current_app
+
 from dateutil import parser
 from .. import db
 from . base_model import BaseModel
@@ -10,7 +9,8 @@ menu_meals = db.Table('menu_meals',
                       db.Column('menu_id', db.Integer, db.ForeignKey(
                           'menus.id'), primary_key=True),
                       db.Column('meal_id', db.Integer, db.ForeignKey(
-                          'meals.id'), primary_key=True))
+                          'meals.id'), primary_key=True)
+                      )
 
 
 class Menu(BaseModel):
@@ -38,27 +38,26 @@ class Menu(BaseModel):
     def menu_date(self, menu_date):
         self.date = parser.parse(menu_date)
 
+    def append_meals(self, meals):
+        """
+        appends meals to menu
+        """
+        self.meals.clear()
+        for meal_id in meals:
+            meal = Meal.query.get(meal_id)
+            self.meals.append(meal)
+        return True
+
     def modify(self, args):
         """
         modifies self, setting attributes
         """
         modified = False
         for key in args:
-            if args[key] is not None:
-                if key == 'meals' and args['meals']:
-                    modified = True
-                    self.meals.clear()
-                    for meal_id in args['meals']:
-                        meal = Meal.query.get(meal_id)
-                        if meal:
-                            self.meals.append(meal)
-                elif key == 'date':
-                    self.menu_date = args['date']
-                    modified = True
-                elif hasattr(self, key):
-                    modified = True
-                    setattr(self, key, args[key])
-
+            if key == 'meals' and args[key] is not None:
+                modified = self.append_meals(args["meals"])
+            else:
+                modified = self.set_attr(key, args[key])
         return modified
 
     def to_dict(self):

@@ -44,7 +44,7 @@ class UtilsTestCase(ApiTestCase):
 
         with self.assertRaises(ValueError) as ctx:
             str_type('  ')
-        self.assertEqual("This field cannot be empty", str(ctx.exception))
+        self.assertEqual("This field is required", str(ctx.exception))
 
     def test_menu_date_type(self):
         """

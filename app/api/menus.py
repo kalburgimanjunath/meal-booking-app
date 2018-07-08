@@ -13,7 +13,7 @@ from ..models import Menu, Meal
 
 MENU_MODAL = api.model('Menu', {
     'title': fields.String(max_length=64),
-    'date': fields.Date(),
+    'menu_date': fields.Date(),
     'description': fields.String(max_length=200),
     'meals': fields.List(fields.Integer)
 })
@@ -67,7 +67,7 @@ class MenuResource(Resource):
         user = g.current_user
 
         menu = Menu(title=args['title'], description=args['description'],
-                    menu_date=args['date'], catering=user.catering)
+                    menu_date=args['menu_date'], catering=user.catering)
         meals = args['meals']
         validate_meals_list(meals)
         for meal_id in meals:

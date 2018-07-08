@@ -1,7 +1,6 @@
 """
 Module contains the base model
 """
-import datetime
 from .. import db
 
 
@@ -19,6 +18,15 @@ class BaseModel(db.Model):
         """
         db.session.add(self)
         db.session.commit()
+
+    def set_attr(self, key, value):
+        """
+        sets attribute on a model
+        """
+        if hasattr(self, key) and value is not None:
+            setattr(self, key, value)
+            return True
+        return False
 
     def delete(self):
         """

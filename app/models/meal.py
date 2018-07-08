@@ -1,6 +1,4 @@
-import datetime
-from flask import current_app
-from dateutil import parser
+
 from .. import db
 from . base_model import BaseModel
 
@@ -33,7 +31,5 @@ class Meal(BaseModel):
         modified = False
         for key in args:
             if args[key] is not None:
-                if hasattr(self, key):
-                    modified = True
-                    setattr(self, key, args[key])
+                modified = self.set_attr(key, args[key])
         return modified

@@ -54,7 +54,7 @@ def str_type(value):
     if not isinstance(value, str):
         raise ValueError("Field value must be a string")
     elif not value.strip(' '):
-        raise ValueError("This field cannot be empty")
+        raise ValueError("This field is required")
     return value
 
 
@@ -83,10 +83,7 @@ def email_type(value):
     """
     email_type. validates an email and ensures no user exists with same email
     """
-    if not isinstance(value, str):
-        raise ValueError("Email must be a string")
-    elif not value.strip(' '):
-        raise ValueError("Email field is required")
+    value = str_type(value)
     is_valid = validate_email_type(value)
     if not is_valid:
         raise ValueError('Email is not valid')
