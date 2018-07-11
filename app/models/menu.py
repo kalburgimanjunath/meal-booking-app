@@ -56,7 +56,7 @@ class Menu(BaseModel):
         for key in args:
             if key == 'meals' and args[key] is not None:
                 modified = self.append_meals(args["meals"])
-            else:
+            elif args[key] is not None:
                 modified = self.set_attr(key, args[key])
         return modified
 

@@ -2,9 +2,9 @@ from app.models import User, Menu, Order, Meal
 from tests.base_test_case import ApiTestCase
 
 
-class UserModelTestCase(ApiTestCase):
+class ModelsTestCase(ApiTestCase):
     """
-    Tests for the user model object
+    Tests models
     """
 
     def test_password_setter(self):

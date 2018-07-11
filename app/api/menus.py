@@ -19,7 +19,7 @@ MENU_MODAL = api.model('Menu', {
 })
 
 
-class MenusResource(Resource):
+class GetMenuResource(Resource):
     """
     MenusResource. for exposing menus as API endpoints
     """

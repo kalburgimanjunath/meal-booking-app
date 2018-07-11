@@ -7,7 +7,7 @@ api = Api(api_bp)
 
 from .auth import Login, Register, RegisterBusiness  # noqa
 from .meals import MealResource, MealsResource  # noqa
-from .menus import MenuResource, SpecificMenuResource, MenusResource  # noqa
+from .menus import MenuResource, SpecificMenuResource, GetMenuResource  # noqa
 from .orders import OrderResource, CustomerOrderResource, MyOrderResource  # noqa
 
 api.add_resource(Register, '/auth/signup')
@@ -19,7 +19,7 @@ api.add_resource(MealsResource, '/meals')
 api.add_resource(MealResource, '/meals/<int:meal_id>')
 
 api.add_resource(MenuResource, '/menu')
-api.add_resource(MenusResource, '/menus')
+api.add_resource(GetMenuResource, '/menus')
 
 api.add_resource(OrderResource, '/orders/<int:order_id>')
 api.add_resource(CustomerOrderResource, '/orders')
