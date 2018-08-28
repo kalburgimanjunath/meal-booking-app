@@ -4,11 +4,11 @@ Module contains API resource for exposing catering menus
 
 from datetime import datetime
 from flask_restplus import Resource, fields, abort
-from flask import g
+from flask import g, request
 from .decorators import authenticate, admin_required
 from . import api
 from . import parsers
-from .common import validate_meals_list
+from .common import validate_meals_list, save_image, make_integer
 from ..models import Menu, Meal
 
 MENU_MODAL = api.model('Menu', {
@@ -56,7 +56,7 @@ class MenuResource(Resource):
 
     @authenticate
     @admin_required
-    @api.expect(MENU_MODAL, validate=True)
+    @api.expect(parsers.menu_modal, validate=True)
     @api.header('Authorization', type=str, description='Authentication token')
     def post(self):
         """
@@ -65,10 +65,11 @@ class MenuResource(Resource):
 
         args = parsers.menu_modal.parse_args()
         user = g.current_user
-
+        image_path = save_image(args)
         menu = Menu(title=args['title'], description=args['description'],
-                    menu_date=args['menu_date'], catering=user.catering)
-        meals = args['meals']
+                    menu_date=args['menu_date'], catering=user.catering, image_url=image_path)
+        meals = request.form.get('meals', [])
+        meals = list(map(make_integer, meals.split(',')))
         validate_meals_list(meals)
         for meal_id in meals:
             meal = Meal.query.get(meal_id)

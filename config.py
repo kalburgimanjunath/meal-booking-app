@@ -13,6 +13,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ORDER_EXPIRES_IN = 5
     DATA_FOLDER = 'app/static'
+    BASE_URL = os.environ.get('BASE_URL', 'http://localhost:5000')
 
     @staticmethod
     def init_app(app):
@@ -27,7 +28,7 @@ class DevConfig(Config):
       Configurations for development
     """
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DEV_DATABASE_URL',
+        'DATABASE_URL',
         'postgresql://andela1:AnDELa@localhost/bookamealdb')
 
 

@@ -11,7 +11,7 @@ from . import api
 MEAL_MODAL = api.model('Meal', {
     'title': fields.String(max_length=64),
     'price': fields.Integer(min=100),
-    'description': fields.String(max_length=64)
+    'description': fields.String(max_length=200)
 })
 
 

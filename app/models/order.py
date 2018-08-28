@@ -57,6 +57,9 @@ class Order(BaseModel):
         """
          Turns order into dict for easy serialization
         """
+        menu_id = 0
+        if self.menu:
+            menu_id = self.menu.id
         return {
             'id': self.id,
             'cost': self.total_cost,
@@ -66,5 +69,5 @@ class Order(BaseModel):
             'customer': self.customer.to_dict(),
             'createdAt': str(self.created_at),
             'orderCount': self.order_count,
-            'menuId': self.menu.id
+            'menuId': menu_id
         }

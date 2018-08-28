@@ -49,7 +49,7 @@ SIGNUP_BUSINESS = api.model('business_signup', {
     'businessName': fields.String(max_length=64),
     'email': fields.String(max_length=64),
     'name': fields.String(max_length=64),
-    'password': fields.String(max_length=36, pattern='[A-Za-z0-9@#$%^&+=]{8,}')
+    'password': fields.String(max_length=36)
 })
 
 

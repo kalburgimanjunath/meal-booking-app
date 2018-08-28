@@ -1,5 +1,6 @@
 
 from dateutil import parser
+from flask import current_app
 from .. import db
 from . base_model import BaseModel
 from . meal import Meal
@@ -25,6 +26,7 @@ class Menu(BaseModel):
     meals = db.relationship('Meal', secondary=menu_meals, lazy='subquery',
                             backref=db.backref('menu', lazy=True))
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
+    image_url = db.Column(db.String(256))
     orders = db.relationship('Order', backref='menu', lazy='dynamic')
 
     @property
@@ -64,6 +66,9 @@ class Menu(BaseModel):
         """
           Turns Menu into a dict for easy serialization
         """
+        image_url = ""
+        if self.image_url:
+            image_url = current_app.config['BASE_URL'] + self.image_url
         return {
             'id': self.id,
             'title': self.title,
@@ -74,5 +79,6 @@ class Menu(BaseModel):
                 'id': self.id,
                 'name': self.catering.name,
                 'address': self.catering.address
-            }
+            },
+            'imageURL': image_url
         }

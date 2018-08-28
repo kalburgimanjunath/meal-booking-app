@@ -3,9 +3,12 @@ Module to store helper functions for validation
 """
 
 import datetime
+import os
+from flask import (current_app, g)
+import uuid
 import validators
+
 from dateutil import parser as date_parser
-from flask import g
 from flask_restplus import abort
 from ..models import Meal, User, Menu
 
@@ -101,3 +104,29 @@ def validate_meals_list(meals):
         meal = Meal.query.filter_by(id=meal_id).first()
         if not meal:
             abort(code=400, message='No meal exists with id: {}'.format(meal_id))
+
+
+def save_image(args):
+    """
+    save_image. saves image uploads
+    """
+    if args['imageFile']:
+        mime_type = args['imageFile'].mimetype
+        if mime_type == 'image/png' or mime_type == 'image/jpeg':
+            if 'png' in mime_type:
+                file_type = 'png'
+            elif 'jpeg' in mime_type:
+                file_type = 'jpeg'
+            destination = os.path.join(
+                current_app.config.get('DATA_FOLDER'), 'medias/')
+            if not os.path.exists(destination):
+                os.makedirs(destination)
+            image_file = '%s%s' % (
+                destination, '{0}.{1}'.format(uuid.uuid4(), file_type))
+            args['imageFile'].save(image_file)
+            return image_file.replace('app', '')
+    return None
+
+
+def make_integer(number):
+    return int(number)
