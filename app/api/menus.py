@@ -14,7 +14,7 @@ from ..models import Menu, Meal
 MENU_MODAL = api.model('Menu', {
     'title': fields.String(max_length=64),
     'menu_date': fields.Date(),
-    'description': fields.String(max_length=200),
+    'description': fields.String(max_length=40),
     'meals': fields.List(fields.Integer)
 })
 
