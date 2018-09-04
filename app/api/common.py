@@ -19,13 +19,13 @@ def menu_date_type(value):
     """
     value = edit_menu_date_type(value)
     user = g.current_user
-    menu_date = date_parser.parse(value)
+    # menu_date = date_parser.parse(value)
     menu = Menu.query.filter_by(
-        catering=user.catering).filter_by(date=menu_date).first()
+        catering=user.catering).filter_by(date=value).first()
     if menu:
         raise ValueError(
-            'Menu for the specific date {} is already set'.format(value))
-    return value
+            'Menu for the specific day {} is already set'.format(value))
+    return value.lower()
 
 
 def edit_menu_date_type(value):
@@ -33,9 +33,11 @@ def edit_menu_date_type(value):
     validates menu date
     """
     value = str_type(value)
-    if not validate_date(value):
-        raise ValueError('Incorrect date format, should be YYYY-MM-DD')
-    return value
+    days = ['monday', 'tuesday', 'wednesday',
+            'thursday', 'friday', 'saturday', 'sunday']
+    if not value.lower() in days:
+        raise ValueError('Incorrect day')
+    return value.lower()
 
 
 def type_menu_id(value):
@@ -100,6 +102,10 @@ def validate_meals_list(meals):
     """
     validates a list of meals
     """
+    if isinstance(meals, str):
+        meals = meals.split(',')
+
+    print(meals)
     for meal_id in meals:
         meal = Meal.query.filter_by(id=meal_id).first()
         if not meal:

@@ -13,7 +13,7 @@ from ..models import Menu, Meal
 
 MENU_MODAL = api.model('Menu', {
     'title': fields.String(max_length=64),
-    'menu_date': fields.Date(),
+    'menu_date': fields.String(max_length=20),
     'description': fields.String(max_length=40),
     'meals': fields.List(fields.Integer)
 })
@@ -48,8 +48,9 @@ class MenuResource(Resource):
         """
         Allows a customer to get a specific day menu
         """
-        current_date = datetime.now().date()
-        menus = Menu.query.filter_by(date=current_date).all()
+        current_date = datetime.now()
+        day = current_date.strftime("%A").lower()
+        menus = Menu.query.filter_by(date=day).all()
         return {
             'menus': [menu.to_dict() for menu in menus]
         }, 200
@@ -68,8 +69,12 @@ class MenuResource(Resource):
         image_path = save_image(args)
         menu = Menu(title=args['title'], description=args['description'],
                     menu_date=args['menu_date'], catering=user.catering, image_url=image_path)
-        meals = request.form.get('meals', [])
-        meals = list(map(make_integer, meals.split(',')))
+        meals = request.form.get('meals') or args['meals']
+        if meals is None:
+            abort(code=400, message='Meals are required to create a menu')
+
+        if isinstance(meals, str):
+            meals = meals.split(',')
         validate_meals_list(meals)
         for meal_id in meals:
             meal = Meal.query.get(meal_id)

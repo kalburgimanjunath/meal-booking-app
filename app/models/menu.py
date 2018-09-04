@@ -22,7 +22,7 @@ class Menu(BaseModel):
     __tablename__ = 'menus'
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
-    date = db.Column(db.Date)
+    date = db.Column(db.String(20))
     meals = db.relationship('Meal', secondary=menu_meals, lazy='subquery',
                             backref=db.backref('menu', lazy=True))
     catering_id = db.Column(db.Integer, db.ForeignKey('caterings.id'))
@@ -38,7 +38,7 @@ class Menu(BaseModel):
 
     @menu_date.setter
     def menu_date(self, menu_date):
-        self.date = parser.parse(menu_date)
+        self.date = menu_date
 
     def append_meals(self, meals):
         """
@@ -74,7 +74,7 @@ class Menu(BaseModel):
             'title': self.title,
             'description': self.description,
             'meals': [meal.to_dict() for meal in self.meals],
-            'menuDate': str(self.date),
+            'menuDate': self.date,
             'catering': {
                 'id': self.id,
                 'name': self.catering.name,
