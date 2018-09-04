@@ -14,6 +14,11 @@ class Config:
     ORDER_EXPIRES_IN = 5
     DATA_FOLDER = 'app/static'
     BASE_URL = os.environ.get('BASE_URL', 'http://localhost:5000')
+    # amazon s3 keys
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    S3_KEY = os.environ.get('S3_ACCESS_KEY')
+    S3_SECRET = os.environ.get('S3_SECRET_ACCESS_KEY')
+    S3_LOCATION = 'https://{}.s3.amazonaws.com/'.format(S3_BUCKET)
 
     @staticmethod
     def init_app(app):

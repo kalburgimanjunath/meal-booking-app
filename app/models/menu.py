@@ -80,5 +80,5 @@ class Menu(BaseModel):
                 'name': self.catering.name,
                 'address': self.catering.address
             },
-            'imageURL': image_url
+            'imageURL': self.image_url
         }

@@ -7,6 +7,8 @@ import os
 from flask import (current_app, g)
 import uuid
 import validators
+import boto3
+import botocore
 
 from dateutil import parser as date_parser
 from flask_restplus import abort
@@ -104,8 +106,6 @@ def validate_meals_list(meals):
     """
     if isinstance(meals, str):
         meals = meals.split(',')
-
-    print(meals)
     for meal_id in meals:
         meal = Meal.query.filter_by(id=meal_id).first()
         if not meal:
@@ -127,12 +127,28 @@ def save_image(args):
                 current_app.config.get('DATA_FOLDER'), 'medias/')
             if not os.path.exists(destination):
                 os.makedirs(destination)
-            image_file = '%s%s' % (
-                destination, '{0}.{1}'.format(uuid.uuid4(), file_type))
-            args['imageFile'].save(image_file)
-            return image_file.replace('app', '')
+            file_name = '{0}.{1}'.format(uuid.uuid4(), file_type)
+            s3_file = args['imageFile'].stream
+            s3_file_name = save_file_to_s3_storage(s3_file, file_name)
+            return s3_file_name
     return None
 
 
 def make_integer(number):
     return int(number)
+
+
+def save_file_to_s3_storage(file, file_name):
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=current_app.config['S3_KEY'],
+        aws_secret_access_key=current_app.config['S3_SECRET']
+    )
+    try:
+        s3.upload_fileobj(file,
+                          current_app.config['S3_BUCKET'],
+                          file_name)
+        return '{}{}'.format(current_app.config['S3_LOCATION'], file_name)
+    except Exception as e:
+        print(e)
+        return None
